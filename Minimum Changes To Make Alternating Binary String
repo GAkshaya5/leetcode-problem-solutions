@@ -1,0 +1,20 @@
+#include <string.h>
+#include <math.h>
+
+#define MIN(a,b) (((a)<(b))?(a):(b))
+
+int minOperations(char * s) {
+    int n = strlen(s);
+    int changesForStart0 = 0;
+
+    for (int i = 0; i < n; i++) {
+        char expected = (i % 2 == 0) ? '0' : '1';
+        
+        if (s[i] != expected) {
+            changesForStart0++;
+        }
+    }
+
+    // changesForStart1 is simply n - changesForStart0
+    return MIN(changesForStart0, n - changesForStart0);
+}
