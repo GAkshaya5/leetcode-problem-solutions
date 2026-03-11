@@ -1,0 +1,14 @@
+class Solution:
+    def bitwiseComplement(self, n: int) -> int:
+        if n == 0:
+            return 1
+        
+        # Create a mask with all 1s of the same length as n
+        # For example, if n = 5 (101), mask = 7 (111)
+        mask = 0
+        temp = n
+        while temp > 0:
+            mask = (mask << 1) | 1
+            temp >>= 1
+            
+        return n ^ mask
