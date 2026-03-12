@@ -1,0 +1,68 @@
+class UnionFind:
+    def __init__(self, n):
+        self.parent = list(range(n))
+        self.count = n
+    def find(self, i):
+        if self.parent[i] == i: return i
+        self.parent[i] = self.find(self.parent[i])
+        return self.parent[i]
+    def union(self, i, j):
+        root_i, root_j = self.find(i), self.find(j)
+        if root_i != root_j:
+            self.parent[root_i] = root_j
+            self.count -= 1
+            return True
+        return False
+
+class Solution:
+    def maxStability(self, n: int, edges: list[list[int]], k: int) -> int:
+        # Check if mandatory edges form a cycle
+        uf_must = UnionFind(n)
+        must_edges = []
+        for u, v, s, m in edges:
+            if m == 1:
+                if not uf_must.union(u, v):
+                    return -1 # Cycle in mandatory edges
+                must_edges.append((u, v, s))
+        
+        def check(X):
+            uf = UnionFind(n)
+            upgrades_used = 0
+            
+            # 1. Process mandatory edges (must be >= X)
+            for u, v, s in must_edges:
+                if s < X: return False
+                uf.union(u, v)
+            
+            # 2. Process optional edges that don't need upgrades
+            free_edges = []
+            upgrade_needed_edges = []
+            for u, v, s, m in edges:
+                if m == 0:
+                    if s >= X:
+                        free_edges.append((u, v))
+                    elif 2 * s >= X:
+                        upgrade_needed_edges.append((u, v))
+            
+            for u, v in free_edges:
+                uf.union(u, v)
+            
+            # 3. Process optional edges that DO need upgrades
+            for u, v in upgrade_needed_edges:
+                if uf.union(u, v):
+                    upgrades_used += 1
+            
+            return uf.count == 1 and upgrades_used <= k
+
+        # Binary Search
+        low, high = 0, 2 * 10**5
+        ans = -1
+        
+        while low <= high:
+            mid = (low + high) // 2
+            if check(mid):
+                ans = mid
+                low = mid + 1
+            else:
+                high = mid - 1
+        return ans
