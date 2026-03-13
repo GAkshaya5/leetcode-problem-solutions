@@ -1,0 +1,30 @@
+import math
+
+class Solution:
+    def minNumberOfSeconds(self, mountainHeight, workerTimes):
+        
+        def can_complete(t):
+            total_height_reduced = 0
+            for wt in workerTimes:
+                # A worker can reduce height x if: wt * (x * (x + 1) / 2) <= t
+                # Solving the quadratic: x^2 + x - (2t/wt) <= 0
+                # Using x = (-b + sqrt(b^2 - 4ac)) / 2a
+                h = int((math.sqrt(1 + 8 * t / wt) - 1) / 2)
+                total_height_reduced += h
+                
+                if total_height_reduced >= mountainHeight:
+                    return True
+            return total_height_reduced >= mountainHeight
+        
+        # Binary search range
+        left, right = 1, 10**16 
+        ans = right
+        
+        while left <= right:
+            mid = (left + right) // 2
+            if can_complete(mid):
+                ans = mid
+                right = mid - 1
+            else:
+                left = mid + 1
+        return ans
