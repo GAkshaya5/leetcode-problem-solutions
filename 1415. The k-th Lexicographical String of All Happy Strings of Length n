@@ -1,0 +1,25 @@
+class Solution:
+    def getHappyString(self, n: int, k: int) -> str:
+        self.result = ""
+        self.count = 0
+        
+        def backtrack(current_string):
+            # If we've found the k-th string, stop exploring
+            if self.count == k:
+                return
+            
+            # Base case: string reached length n
+            if len(current_string) == n:
+                self.count += 1
+                if self.count == k:
+                    self.result = current_string
+                return
+            
+            # Try adding 'a', 'b', and 'c' in order
+            for char in ['a', 'b', 'c']:
+                # Check the "Happy String" condition
+                if not current_string or current_string[-1] != char:
+                    backtrack(current_string + char)
+                    
+        backtrack("")
+        return self.result
