@@ -1,0 +1,28 @@
+class Fancy:
+
+    def __init__(self):
+        self.nums = []
+        self.mult = 1
+        self.add = 0
+        self.MOD = 10**9 + 7
+
+    def append(self, val: int) -> None:
+        # Neutralize the current global mult and add so that 
+        # when they are applied later, we get the original 'val'.
+        # Formula: (stored_val * self.mult + self.add) == val
+        # stored_val = (val - self.add) * inv(self.mult)
+        inv_mult = pow(self.mult, self.MOD - 2, self.MOD)
+        self.nums.append(((val - self.add) * inv_mult) % self.MOD)
+
+    def addAll(self, inc: int) -> None:
+        self.add = (self.add + inc) % self.MOD
+
+    def multAll(self, m: int) -> None:
+        self.mult = (self.mult * m) % self.MOD
+        self.add = (self.add * m) % self.MOD
+
+    def getIndex(self, idx: int) -> int:
+        if idx >= len(self.nums):
+            return -1
+        # Apply the current global transformation to the stored value
+        return (self.nums[idx] * self.mult + self.add) % self.MOD
