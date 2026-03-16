@@ -1,0 +1,31 @@
+class Solution:
+    def getBiggestThree(self, grid: list[list[int]]) -> list[int]:
+        m, n = len(grid), len(grid[0])
+        sums = set()
+
+        for r in range(m):
+            for c in range(n):
+                # Case 1: Rhombus of area 0 (just the cell itself)
+                sums.add(grid[r][c])
+                
+                # Case 2: Rhombus with length L > 0
+                l = 1
+                while True:
+                    # Check if all four tips are within bounds
+                    if r - l < 0 or r + l >= m or c - l < 0 or c + l >= n:
+                        break
+                    
+                    current_sum = 0
+                    # Traverse the 4 edges
+                    # Top to Right, Right to Bottom, Bottom to Left, Left to Top
+                    for i in range(l):
+                        current_sum += grid[r - l + i][c + i] # Top-right edge
+                        current_sum += grid[r + i][c + l - i] # Right-bottom edge
+                        current_sum += grid[r + l - i][c - i] # Bottom-left edge
+                        current_sum += grid[r - i][c - l + i] # Left-top edge
+                    
+                    sums.add(current_sum)
+                    l += 1
+        
+        # Sort distinct sums descending and take the top 3
+        return sorted(list(sums), reverse=True)[:3]
