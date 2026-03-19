@@ -1,0 +1,29 @@
+class Solution:
+    def numberOfSubmatrices(self, grid: List[List[str]]) -> int:
+        R = len(grid)
+        C = len(grid[0])
+        
+        # prefix_x[i][j] will store count of 'X' in submatrix (0,0) to (i-1, j-1)
+        # We use size (R+1) x (C+1) to handle boundary conditions easily
+        prefX = [[0] * (C + 1) for _ in range(R + 1)]
+        prefY = [[0] * (C + 1) for _ in range(R + 1)]
+        
+        count = 0
+        
+        for r in range(R):
+            for c in range(C):
+                # Calculate prefix sum for 'X'
+                valX = 1 if grid[r][c] == 'X' else 0
+                prefX[r+1][c+1] = valX + prefX[r][c+1] + prefX[r+1][c] - prefX[r][c]
+                
+                # Calculate prefix sum for 'Y'
+                valY = 1 if grid[r][c] == 'Y' else 0
+                prefY[r+1][c+1] = valY + prefY[r][c+1] + prefY[r+1][c] - prefY[r][c]
+                
+                # Check conditions:
+                # 1. Equal frequency of X and Y
+                # 2. At least one X
+                if prefX[r+1][c+1] == prefY[r+1][c+1] and prefX[r+1][c+1] > 0:
+                    count += 1
+                    
+        return count
