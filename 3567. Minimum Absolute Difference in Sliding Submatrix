@@ -1,0 +1,43 @@
+from typing import List
+
+class Solution:
+    def minAbsDiff(self, grid: List[List[int]], k: int) -> List[List[int]]:
+        m, n = len(grid), len(grid[0])
+        
+        # Result grid dimensions: (m - k + 1) x (n - k + 1)
+        res_rows = m - k + 1
+        res_cols = n - k + 1
+        ans = [[0] * res_cols for _ in range(res_rows)]
+        
+        for i in range(res_rows):
+            for j in range(res_cols):
+                # 1. Collect all elements in the current k x k submatrix
+                # We use a set to automatically keep only 'distinct' values
+                distinct_elements = set()
+                for r in range(i, i + k):
+                    for c in range(j, j + k):
+                        distinct_elements.add(grid[r][c])
+                
+                # 2. Convert set to a sorted list
+                # If there are 0 or 1 distinct values, the min difference is 0
+                if len(distinct_elements) < 2:
+                    ans[i][j] = 0
+                    continue
+                
+                sorted_vals = sorted(list(distinct_elements))
+                
+                # 3. Find the minimum difference between adjacent sorted values
+                current_min = float('inf')
+                for p in range(len(sorted_vals) - 1):
+                    diff = sorted_vals[p+1] - sorted_vals[p]
+                    if diff < current_min:
+                        current_min = diff
+                    
+                    # Optimization: 1 is the smallest possible difference for integers
+                    # (Unless there are duplicates, but we already handled those)
+                    if current_min == 1:
+                        break
+                
+                ans[i][j] = current_min
+                
+        return ans
