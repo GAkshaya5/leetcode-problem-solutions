@@ -1,0 +1,16 @@
+class Solution:
+    def reverseSubmatrix(self, grid: List[List[int]], x: int, y: int, k: int) -> List[List[int]]:
+        # Initialize two pointers for the top and bottom rows of the submatrix
+        top = x
+        bottom = x + k - 1
+        
+        while top < bottom:
+            # Swap the elements in the range [y, y + k) between the two rows
+            for col in range(y, y + k):
+                grid[top][col], grid[bottom][col] = grid[bottom][col], grid[top][col]
+            
+            # Move pointers toward the center
+            top += 1
+            bottom -= 1
+            
+        return grid
