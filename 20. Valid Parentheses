@@ -1,0 +1,32 @@
+#include <stdbool.h>
+#include <string.h>
+
+bool isValid(char* s) {
+    int n = strlen(s);
+    // The stack will never need to be larger than the string length
+    char stack[n];
+    int top = -1;
+
+    for (int i = 0; i < n; i++) {
+        char c = s[i];
+
+        // Push opening brackets
+        if (c == '(' || c == '{' || c == '[') {
+            stack[++top] = c;
+        } 
+        else {
+            // If we find a closing bracket but the stack is empty, it's invalid
+            if (top == -1) return false;
+
+            char last = stack[top--];
+            
+            // Match check
+            if (c == ')' && last != '(') return false;
+            if (c == '}' && last != '{') return false;
+            if (c == ']' && last != '[') return false;
+        }
+    }
+
+    // If top is -1, all brackets were matched and popped
+    return top == -1;
+}
