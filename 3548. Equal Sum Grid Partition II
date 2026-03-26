@@ -1,0 +1,70 @@
+from collections import Counter
+
+class Solution:
+    def canPartitionGrid(self, grid: List[List[int]]) -> bool:
+        m, n = len(grid), len(grid[0])
+        total_sum = sum(sum(row) for row in grid)
+
+        def check(matrix):
+            R, C = len(matrix), len(matrix[0])
+            row_sums = [sum(r) for r in matrix]
+            
+            # total_counts for O(1) lookups of elements in Section 2
+            total_counts = Counter()
+            for r in range(R):
+                for val in matrix[r]:
+                    total_counts[val] += 1
+            
+            s1 = 0
+            s1_counts = Counter()
+            
+            for i in range(R - 1): # Try cut after row i
+                s1 += row_sums[i]
+                for val in matrix[i]:
+                    s1_counts[val] += 1
+                
+                s2 = total_sum - s1
+                diff = abs(s1 - s2)
+                
+                if diff == 0: return True
+                
+                # Case: Discount from Section 1 (Top part)
+                if s1 > s2:
+                    target = s1 - s2
+                    if s1_counts[target] > 0:
+                        # If Section 1 is 2D (C > 1 and it has > 1 row)
+                        if C > 1 and i > 0: return True
+                        # If Section 1 is 1xN (i == 0), any cell removal is "connected" 
+                        # because there's only one row, but wait—actually, 
+                        # if it's 1xN, removing a middle cell still disconnects it!
+                        if i == 0: # Section 1 is a single row
+                            if C > 1: # Row with multiple columns
+                                # ONLY the ends of this row are valid
+                                if matrix[0][0] == target or matrix[0][C-1] == target: return True
+                            else: # Single cell
+                                if matrix[0][0] == target: return True
+                        # If Section 1 is Mx1 (C == 1), only top or bottom cell of the section
+                        elif C == 1:
+                            if matrix[0][0] == target or matrix[i][0] == target: return True
+
+                # Case: Discount from Section 2 (Bottom part)
+                if s2 > s1:
+                    target = s2 - s1
+                    if (total_counts[target] - s1_counts[target]) > 0:
+                        # If Section 2 is 2D
+                        if C > 1 and (R - 1 - i) > 1: return True
+                        # If Section 2 is 1xN (Bottom-most single row)
+                        if i == R - 2:
+                            if C > 1:
+                                if matrix[R-1][0] == target or matrix[R-1][C-1] == target: return True
+                            else:
+                                if matrix[R-1][0] == target: return True
+                        # If Section 2 is Mx1 (C == 1)
+                        elif C == 1:
+                            if matrix[i+1][0] == target or matrix[R-1][0] == target: return True
+            return False
+
+        # Horizontal then Vertical
+        if check(grid): return True
+        transposed = [list(row) for row in zip(*grid)]
+        return check(transposed)
