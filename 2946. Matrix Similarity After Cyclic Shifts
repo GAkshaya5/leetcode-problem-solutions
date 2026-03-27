@@ -1,0 +1,19 @@
+class Solution:
+    def areSimilar(self, mat: List[List[int]], k: int) -> bool:
+        n = len(mat[0])
+        # Only the remainder matters
+        shift = k % n
+        
+        # If no effective shift, it's always true
+        if shift == 0:
+            return True
+            
+        for row in mat:
+            for j in range(n):
+                # Check if the element matches the element 'k' positions away
+                # This works for both left and right shifts because similarity
+                # implies mat[i][j] == mat[i][(j + k) % n]
+                if row[j] != row[(j + shift) % n]:
+                    return False
+        
+        return True
