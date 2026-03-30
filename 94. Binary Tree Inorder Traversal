@@ -1,0 +1,12 @@
+class Solution:
+    def inorderTraversal(self, root: Optional[TreeNode]) -> List[int]:
+        res = []
+        def helper(node):
+            if not node:
+                return
+            helper(node.left)    # Visit Left
+            res.append(node.val) # Visit Root
+            helper(node.right)   # Visit Right
+        
+        helper(root)
+        return res
