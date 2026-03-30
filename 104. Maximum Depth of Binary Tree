@@ -1,0 +1,16 @@
+class Solution {
+public:
+    int maxDepth(TreeNode* root) {
+        // Base case: if the tree is empty
+        if (root == NULL) {
+            return 0;
+        }
+        
+        // Recursive calls to find the height of each subtree
+        int leftHeight = maxDepth(root->left);
+        int rightHeight = maxDepth(root->right);
+        
+        // Return the greater height + 1 (for the current root)
+        return max(leftHeight, rightHeight) + 1;
+    }
+};
