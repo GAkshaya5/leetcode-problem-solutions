@@ -1,0 +1,51 @@
+class Solution:
+    def generateString(self, str1: str, str2: str) -> str:
+        n, m = len(str1), len(str2)
+        total_len = n + m - 1
+        res = [None] * total_len
+        fixed = [False] * total_len
+        
+        # Step 1: Fill all 'T' requirements
+        for i in range(n):
+            if str1[i] == 'T':
+                for j in range(m):
+                    if res[i + j] is not None and res[i + j] != str2[j]:
+                        return ""
+                    res[i + j] = str2[j]
+                    fixed[i + j] = True
+        
+        # Step 2: Fill remaining with 'a'
+        for i in range(total_len):
+            if res[i] is None:
+                res[i] = 'a'
+                
+        # Step 3: Fix 'F' violations
+        for i in range(n):
+            if str1[i] == 'F':
+                # Check if current substring matches str2
+                match = True
+                for j in range(m):
+                    if res[i + j] != str2[j]:
+                        match = False
+                        break
+                
+                # If it matches, we must break it
+                if match:
+                    changed = False
+                    # Try to change the rightmost non-fixed character
+                    for j in range(m - 1, -1, -1):
+                        idx = i + j
+                        if not fixed[idx]:
+                            # Change to the smallest char that isn't str2[j]
+                            for char_code in range(ord('a'), ord('z') + 1):
+                                char = chr(char_code)
+                                if char != str2[j]:
+                                    res[idx] = char
+                                    changed = True
+                                    break
+                            if changed: break
+                    
+                    if not changed: # All characters in the match were fixed by 'T's
+                        return ""
+                        
+        return "".join(res)
