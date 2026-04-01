@@ -1,0 +1,45 @@
+class Solution:
+    def survivedRobotsHealths(self, positions: List[int], healths: List[int], directions: str) -> List[int]:
+        n = len(positions)
+        # Create robot objects with (position, health, direction, original_index)
+        robots = []
+        for i in range(n):
+            robots.append([positions[i], healths[i], directions[i], i])
+        
+        # Sort robots by their position on the line
+        robots.sort()
+        
+        stack = [] # Will store robots moving 'R'
+        survivors = {} # Stores {original_index: final_health}
+
+        for pos, health, direct, idx in robots:
+            if direct == 'R':
+                stack.append([pos, health, direct, idx])
+            else:
+                # Current robot is moving 'L', check for collisions with 'R' robots in stack
+                while stack and health > 0:
+                    top_r = stack[-1]
+                    
+                    if health > top_r[1]:
+                        # 'L' wins, 'R' destroyed
+                        health -= 1
+                        stack.pop()
+                    elif health < top_r[1]:
+                        # 'R' wins, 'L' destroyed
+                        top_r[1] -= 1
+                        health = 0
+                    else:
+                        # Both destroyed
+                        health = 0
+                        stack.pop()
+                
+                # If 'L' survived all collisions in the stack
+                if health > 0:
+                    survivors[idx] = health
+        
+        # Add remaining 'R' robots from stack to survivors
+        for _, health, _, idx in stack:
+            survivors[idx] = health
+            
+        # Return healths in original input order
+        return [survivors[i] for i in range(n) if i in survivors]
