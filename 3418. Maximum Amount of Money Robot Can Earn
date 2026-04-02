@@ -1,0 +1,33 @@
+class Solution:
+    def maximumAmount(self, coins: List[List[int]]) -> int:
+        m, n = len(coins), len(coins[0])
+        # dp[i][j][k] where k is number of neutralizations USED (0, 1, or 2)
+        dp = [[[float('-inf')] * 3 for _ in range(n)] for _ in range(m)]
+        
+        for i in range(m):
+            for j in range(n):
+                val = coins[i][j]
+                for k in range(3):
+                    if i == 0 and j == 0:
+                        # Base case: Starting cell
+                        dp[i][j][0] = val
+                        if k > 0 and val < 0:
+                            dp[i][j][k] = 0
+                        continue
+                    
+                    # Coming from Top or Left
+                    res = float('-inf')
+                    if i > 0: res = max(res, dp[i-1][j][k])
+                    if j > 0: res = max(res, dp[i][j-1][k])
+                    
+                    # Choice 1: Don't use/already used neutralization at this cell
+                    dp[i][j][k] = max(dp[i][j][k], res + val)
+                    
+                    # Choice 2: Use a neutralization at this cell (if it's a robber)
+                    if val < 0 and k > 0:
+                        prev_res = float('-inf')
+                        if i > 0: prev_res = max(prev_res, dp[i-1][j][k-1])
+                        if j > 0: prev_res = max(prev_res, dp[i][j-1][k-1])
+                        dp[i][j][k] = max(dp[i][j][k], prev_res)
+                        
+        return max(dp[m-1][n-1])
