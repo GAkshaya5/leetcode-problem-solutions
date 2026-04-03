@@ -1,0 +1,45 @@
+from bisect import bisect_left, bisect_right
+
+class Solution:
+    def maxWalls(self, robots: List[int], distance: List[int], walls: List[int]) -> int:
+        # 1. Sort robots (with their distances) and walls
+        combined = sorted(zip(robots, distance))
+        robots = [r[0] for r in combined]
+        dist = [r[1] for r in combined]
+        walls.sort()
+        
+        n = len(robots)
+        
+        # Helper to count walls in range [l, r] using binary search
+        def count_walls(l, r):
+            if l > r: return 0
+            idx1 = bisect_left(walls, l)
+            idx2 = bisect_right(walls, r)
+            return max(0, idx2 - idx1)
+
+        # dp[i] = max walls destroyed using robots from index 0 to i-1
+        dp = [0] * (n + 1)
+        
+        for i in range(n):
+            # Option A: Do nothing (carry forward previous best)
+            dp[i+1] = max(dp[i+1], dp[i])
+            
+            # Option B: Robot i fires LEFT
+            # Range stops at the position of the previous robot (if any)
+            left_limit = robots[i-1] if i > 0 else -float('inf')
+            fire_left_start = max(left_limit, robots[i] - dist[i])
+            walls_left = count_walls(fire_left_start, robots[i])
+            dp[i+1] = max(dp[i+1], dp[i] + walls_left)
+            
+            # Option C: Robot i fires RIGHT
+            # Range stops at the position of the next robot (if any)
+            right_limit = robots[i+1] if i < n - 1 else float('inf')
+            fire_right_end = min(right_limit, robots[i] + dist[i])
+            walls_right = count_walls(robots[i], fire_right_end)
+            
+            # Note: Firing right affects the total, but since it doesn't overlap 
+            # with the *next* robot's independent choices in this DP structure,
+            # we update dp[i+1] accordingly.
+            dp[i+1] = max(dp[i+1], dp[i] + walls_right)
+
+        return dp[n]
