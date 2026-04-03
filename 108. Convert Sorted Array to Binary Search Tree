@@ -1,0 +1,21 @@
+class Solution {
+public:
+    TreeNode* sortedArrayToBST(vector<int>& nums) {
+        return buildBST(nums, 0, nums.size() - 1);
+    }
+
+    TreeNode* buildBST(vector<int>& nums, int left, int right) {
+        // Base case: if left index exceeds right, we've exhausted the subarray
+        if (left > right) return NULL;
+
+        // Choose the middle element to keep the tree balanced
+        int mid = left + (right - left) / 2;
+        TreeNode* root = new TreeNode(nums[mid]);
+
+        // Recursively build the left and right subtrees
+        root->left = buildBST(nums, left, mid - 1);
+        root->right = buildBST(nums, mid + 1, right);
+
+        return root;
+    }
+};
