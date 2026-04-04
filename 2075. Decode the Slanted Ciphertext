@@ -1,0 +1,28 @@
+class Solution {
+public:
+    string decodeCiphertext(string encodedText, int rows) {
+        if (rows == 1) return encodedText;
+        
+        int n = encodedText.length();
+        int cols = n / rows;
+        string res = "";
+        
+        // Each diagonal starts at (0, j) where j is the column index
+        for (int j = 0; j < cols; ++j) {
+            for (int r = 0; r < rows; ++r) {
+                int c = j + r; // The slanted move: row increases, column increases
+                if (c < cols) {
+                    // Calculate 1D index from 2D coordinates (r, c)
+                    res += encodedText[r * cols + c];
+                }
+            }
+        }
+        
+        // Remove trailing spaces as per requirements
+        while (!res.empty() && res.back() == ' ') {
+            res.pop_back();
+        }
+        
+        return res;
+    }
+};
