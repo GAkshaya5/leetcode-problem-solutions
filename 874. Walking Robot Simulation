@@ -1,0 +1,44 @@
+/**
+ * @param {number[]} commands
+ * @param {number[][]} obstacles
+ * @return {number}
+ */
+var robotSim = function(commands, obstacles) {
+    // Directions: 0: North, 1: East, 2: South, 3: West
+    const directions = [[0, 1], [1, 0], [0, -1], [-1, 0]];
+    let x = 0, y = 0;
+    let dirIdx = 0; // Start facing North
+    let maxSquareDist = 0;
+
+    // Store obstacles in a Set for O(1) lookup
+    const obstacleSet = new Set();
+    for (const [ox, oy] of obstacles) {
+        obstacleSet.add(`${ox},${oy}`);
+    }
+
+    for (const cmd of commands) {
+        if (cmd === -2) {
+            // Turn left: (current - 1 + 4) % 4
+            dirIdx = (dirIdx + 3) % 4;
+        } else if (cmd === -1) {
+            // Turn right: (current + 1) % 4
+            dirIdx = (dirIdx + 1) % 4;
+        } else {
+            // Move forward k units
+            for (let i = 0; i < cmd; i++) {
+                let nextX = x + directions[dirIdx][0];
+                let nextY = y + directions[dirIdx][1];
+
+                if (obstacleSet.has(`${nextX},${nextY}`)) {
+                    break; // Hit an obstacle, stop this command
+                }
+
+                x = nextX;
+                y = nextY;
+                maxSquareDist = Math.max(maxSquareDist, x * x + y * y);
+            }
+        }
+    }
+
+    return maxSquareDist;
+};
