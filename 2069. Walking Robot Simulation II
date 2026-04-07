@@ -1,0 +1,48 @@
+/**
+ * @param {number} width
+ * @param {number} height
+ */
+var Robot = function(width, height) {
+    this.w = width;
+    this.h = height;
+    this.perimeter = 2 * (width + height - 2);
+    this.pos = 0;
+    this.isMoved = false;
+};
+
+/** * @param {number} num
+ * @return {void}
+ */
+Robot.prototype.step = function(num) {
+    this.isMoved = true;
+    this.pos = (this.pos + num) % this.perimeter;
+};
+
+/**
+ * @return {number[]}
+ */
+Robot.prototype.getPos = function() {
+    let p = this.pos;
+    if (p < this.w) return [p, 0]; // Bottom edge
+    p -= (this.w - 1);
+    if (p < this.h) return [this.w - 1, p]; // Right edge
+    p -= (this.h - 1);
+    if (p < this.w) return [this.w - 1 - p, this.h - 1]; // Top edge
+    p -= (this.w - 1);
+    return [0, this.h - 1 - p]; // Left edge
+};
+
+/**
+ * @return {string}
+ */
+Robot.prototype.getDir = function() {
+    let p = this.pos;
+    // Special case: if we moved and ended at 0, it means we completed a lap
+    if (this.isMoved && p === 0) return "South";
+    
+    // Check boundaries to determine direction
+    if (p > 0 && p < this.w) return "East";
+    if (p >= this.w && p < this.w + this.h - 1) return "North";
+    if (p >= this.w + this.h - 1 && p < 2 * this.w + this.h - 2) return "West";
+    return "South";
+};
