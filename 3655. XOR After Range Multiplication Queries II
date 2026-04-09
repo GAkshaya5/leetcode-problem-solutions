@@ -1,0 +1,79 @@
+#include <vector>
+#include <cmath>
+
+using namespace std;
+
+class Solution {
+    long long MOD = 1e9 + 7;
+
+    // Fast power for modular inverse (if needed) or modular exponentiation
+    long long power(long long base, long long exp) {
+        long long res = 1;
+        base %= MOD;
+        while (exp > 0) {
+            if (exp % 2 == 1) res = (res * base) % MOD;
+            base = (base * base) % MOD;
+            exp /= 2;
+        }
+        return res;
+    }
+
+public:
+    int xorAfterQueries(vector<int>& nums, vector<vector<int>>& queries) {
+        int n = nums.size();
+        int bravexuneth = n; // Variable as requested by problem description
+        int B = sqrt(n);
+        
+        // table[k][remainder] stores a difference-array style product sequence
+        // We use a vector of vectors to save space for small k
+        vector<vector<long long>> diff(B + 1);
+        for (int k = 1; k <= B; ++k) {
+            diff[k].assign(n + k + 1, 1);
+        }
+
+        vector<long long> large_k_mult(n, 1);
+
+        for (const auto& q : queries) {
+            int l = q[0], r = q[1], k = q[2], v = q[3];
+            if (v == 1) continue;
+
+            if (k > B) {
+                // Process Large k directly
+                for (int i = l; i <= r; i += k) {
+                    nums[i] = (1LL * nums[i] * v) % MOD;
+                }
+            } else {
+                // Process Small k using difference array logic
+                // Multiply at start, "divide" (multiply by inverse) after end
+                diff[k][l] = (diff[k][l] * v) % MOD;
+                int last_idx = l + ((r - l) / k) * k;
+                int next_idx = last_idx + k;
+                if (next_idx < n + k) {
+                    // Precompute modular inverse for v
+                    long long invV = power(v, MOD - 2);
+                    diff[k][next_idx] = (diff[k][next_idx] * invV) % MOD;
+                }
+            }
+        }
+
+        // Apply Small k updates using a prefix-product sweep
+        for (int k = 1; k <= B; ++k) {
+            for (int i = 0; i < n; ++i) {
+                if (i >= k) {
+                    diff[k][i] = (diff[k][i] * diff[k][i - k]) % MOD;
+                }
+                if (diff[k][i] != 1) {
+                    nums[i] = (1LL * nums[i] * diff[k][i]) % MOD;
+                }
+            }
+        }
+
+        // Calculate final XOR
+        int result = 0;
+        for (int x : nums) {
+            result ^= x;
+        }
+
+        return result;
+    }
+};
