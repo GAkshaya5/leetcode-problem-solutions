@@ -1,0 +1,34 @@
+class Solution {
+public:
+    int minimumDistance(vector<int>& nums) {
+        // Map to store the last two indices seen for each number
+        // pair: {index_before_last, last_index}
+        unordered_map<int, pair<int, int>> last_indices;
+        long long min_dist = -1;
+
+        for (int i = 0; i < nums.size(); ++i) {
+            int val = nums[i];
+            
+            if (last_indices.count(val)) {
+                int first = last_indices[val].first;
+                int second = last_indices[val].second;
+
+                if (first != -1) {
+                    // We found a 3rd occurrence!
+                    // Distance is 2 * (current_index - first_index)
+                    long long current_dist = 2LL * (i - first);
+                    if (min_dist == -1 || current_dist < min_dist) {
+                        min_dist = current_dist;
+                    }
+                }
+                // Shift indices: second becomes first, current becomes second
+                last_indices[val] = {second, i};
+            } else {
+                // First time seeing this number
+                last_indices[val] = {-1, i};
+            }
+        }
+
+        return (int)min_dist;
+    }
+};
