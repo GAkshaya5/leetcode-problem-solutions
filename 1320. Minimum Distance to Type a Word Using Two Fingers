@@ -1,0 +1,42 @@
+class Solution:
+    def minimumDistance(self, word: str) -> int:
+        # Helper to get (x, y) coordinates of a character
+        def get_pos(char):
+            idx = ord(char) - ord('A')
+            return divmod(idx, 6)
+
+        # Helper to calculate Manhattan distance
+        def dist(char1, char2):
+            if char1 is None: return 0  # Initial position is free
+            r1, c1 = get_pos(char1)
+            r2, c2 = get_pos(char2)
+            return abs(r1 - r2) + abs(c1 - c2)
+
+        memo = {}
+
+        def solve(idx, other_finger):
+            # Base case: word is fully typed
+            if idx == len(word):
+                return 0
+            
+            state = (idx, other_finger)
+            if state in memo:
+                return memo[state]
+            
+            # Current target letter
+            curr_char = word[idx]
+            # The letter typed just before (where one finger currently is)
+            prev_char = word[idx - 1]
+            
+            # Option 1: Move the finger that typed prev_char to curr_char
+            res1 = dist(prev_char, curr_char) + solve(idx + 1, other_finger)
+            
+            # Option 2: Move the "other" finger to curr_char
+            res2 = dist(other_finger, curr_char) + solve(idx + 1, prev_char)
+            
+            memo[state] = min(res1, res2)
+            return memo[state]
+
+        # Start at index 1: the first letter is free for Finger 1
+        # other_finger starts as None (free)
+        return solve(1, None)
