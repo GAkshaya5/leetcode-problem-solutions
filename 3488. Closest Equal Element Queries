@@ -1,0 +1,89 @@
+import java.util.*;
+
+class Solution {
+    public List<Integer> solveQueries(int[] nums, int[] queries) { // Change return type to List<Integer>
+        int n = nums.length;
+        Map<Integer, List<Integer>> indexMap = new HashMap<>();
+        
+        // Group indices by value
+        for (int i = 0; i < n; i++) {
+            indexMap.computeIfAbsent(nums[i], k -> new ArrayList<>()).add(i);
+        }
+        
+        List<Integer> result = new ArrayList<>(); // Use a List instead of int[]
+        
+        for (int queryIdx : queries) {
+            int val = nums[queryIdx];
+            List<Integer> indices = indexMap.get(val);
+            
+            if (indices.size() <= 1) {
+                result.add(-1);
+                continue;
+            }
+            
+            // Binary search to find the position of queryIdx in the sorted index list
+            int pos = Collections.binarySearch(indices, queryIdx);
+            int m = indices.size();
+            
+            // Check the immediate circular neighbors
+            int leftIdx = indices.get((pos - 1 + m) % m);
+            int rightIdx = indices.get((pos + 1) % m);
+            
+            int distL = getCircularDist(queryIdx, leftIdx, n);
+            int distR = getCircularDist(queryIdx, rightIdx, n);
+            
+            result.add(Math.min(distL, distR));
+        }
+        
+        return result;
+    }
+    
+    private int getCircularDist(int i, int j, int n) {
+        int absDist = Math.abs(i - j);
+        return Math.min(absDist, n - absDist);
+    }
+}import java.util.*;
+
+class Solution {
+    public List<Integer> solveQueries(int[] nums, int[] queries) { // Change return type to List<Integer>
+        int n = nums.length;
+        Map<Integer, List<Integer>> indexMap = new HashMap<>();
+        
+        // Group indices by value
+        for (int i = 0; i < n; i++) {
+            indexMap.computeIfAbsent(nums[i], k -> new ArrayList<>()).add(i);
+        }
+        
+        List<Integer> result = new ArrayList<>(); // Use a List instead of int[]
+        
+        for (int queryIdx : queries) {
+            int val = nums[queryIdx];
+            List<Integer> indices = indexMap.get(val);
+            
+            if (indices.size() <= 1) {
+                result.add(-1);
+                continue;
+            }
+            
+            // Binary search to find the position of queryIdx in the sorted index list
+            int pos = Collections.binarySearch(indices, queryIdx);
+            int m = indices.size();
+            
+            // Check the immediate circular neighbors
+            int leftIdx = indices.get((pos - 1 + m) % m);
+            int rightIdx = indices.get((pos + 1) % m);
+            
+            int distL = getCircularDist(queryIdx, leftIdx, n);
+            int distR = getCircularDist(queryIdx, rightIdx, n);
+            
+            result.add(Math.min(distL, distR));
+        }
+        
+        return result;
+    }
+    
+    private int getCircularDist(int i, int j, int n) {
+        int absDist = Math.abs(i - j);
+        return Math.min(absDist, n - absDist);
+    }
+}
