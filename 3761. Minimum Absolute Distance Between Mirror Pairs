@@ -1,0 +1,40 @@
+#include <vector>
+#include <unordered_map>
+#include <algorithm>
+#include <climits>
+
+using namespace std;
+
+class Solution {
+public:
+    int minMirrorPairDistance(vector<int>& nums) {
+        // Map stores: reverse(nums[i]) -> the latest index i where it occurred
+        unordered_map<int, int> targetMap;
+        int minDistance = INT_MAX;
+        bool found = false;
+
+        for (int j = 0; j < nums.size(); ++j) {
+            // If the current nums[j] was the 'target' (reverse) of a previous nums[i]
+            if (targetMap.count(nums[j])) {
+                minDistance = min(minDistance, j - targetMap[nums[j]]);
+                found = true;
+            }
+
+            // Store the reverse of the current number as a 'target' for future indices
+            int rev = reverseNumber(nums[j]);
+            targetMap[rev] = j;
+        }
+
+        return found ? minDistance : -1;
+    }
+
+private:
+    int reverseNumber(int n) {
+        long long rev = 0; 
+        while (n > 0) {
+            rev = rev * 10 + (n % 10);
+            n /= 10;
+        }
+        return (int)rev;
+    }
+};
