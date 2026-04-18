@@ -1,0 +1,8 @@
+class Solution:
+    def mirrorDistance(self, n: int) -> int:
+        # Step 1: Reverse the integer using string manipulation
+        # str(n)[::-1] reverses the string representation of the number
+        reversed_n = int(str(n)[::-1])
+        
+        # Step 2: Calculate the absolute difference
+        return abs(n - reversed_n)
