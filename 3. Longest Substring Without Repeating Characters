@@ -1,0 +1,23 @@
+class Solution {
+    public int lengthOfLongestSubstring(String s) {
+        int n = s.length();
+        int maxLength = 0;
+        // Map to store the last positions of characters
+        int[] charMap = new int[128]; 
+        
+        for (int right = 0, left = 0; right < n; right++) {
+            char currentChar = s.charAt(right);
+            
+            // If the character was seen inside the current window, move 'left'
+            left = Math.max(charMap[currentChar], left);
+            
+            // Update the max length found so far
+            maxLength = Math.max(maxLength, right - left + 1);
+            
+            // Store the next possible valid position for 'left'
+            charMap[currentChar] = right + 1;
+        }
+        
+        return maxLength;
+    }
+}
