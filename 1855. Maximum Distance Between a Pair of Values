@@ -1,0 +1,23 @@
+class Solution:
+    def maxDistance(self, nums1: List[int], nums2: List[int]) -> int:
+        i = 0
+        j = 0
+        max_dist = 0
+        
+        # Iterate through both arrays using two pointers
+        while i < len(nums1) and j < len(nums2):
+            # Check the validity condition: i <= j and nums1[i] <= nums2[j]
+            if nums1[i] <= nums2[j]:
+                # Update max distance and move j to explore further
+                max_dist = max(max_dist, j - i)
+                j += 1
+            else:
+                # If nums1[i] > nums2[j], nums1[i] is too large. 
+                # Since nums1 is non-increasing, we need a smaller nums1[i],
+                # so we increment i.
+                i += 1
+                # Ensure j is at least equal to i to satisfy i <= j
+                if i > j:
+                    j = i
+                    
+        return max_dist
