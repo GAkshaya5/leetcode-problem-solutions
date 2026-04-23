@@ -1,0 +1,40 @@
+import java.util.*;
+
+class Solution {
+    public long[] distance(int[] nums) {
+        int n = nums.length;
+        long[] arr = new long[n];
+        Map<Integer, List<Integer>> map = new HashMap<>();
+
+        // Step 1: Group all indices by their values
+        for (int i = 0; i < n; i++) {
+            map.computeIfAbsent(nums[i], k -> new ArrayList<>()).add(i);
+        }
+
+        // Step 2: Calculate distances for each group using prefix sums
+        for (int val : map.keySet()) {
+            List<Integer> indices = map.get(val);
+            long totalSum = 0;
+            for (int index : indices) {
+                totalSum += index;
+            }
+
+            long leftSum = 0;
+            int m = indices.size();
+            for (int i = 0; i < m; i++) {
+                long currentIndex = indices.get(i);
+                long rightSum = totalSum - leftSum - currentIndex;
+
+                // formula: (count_left * currIdx - sum_left) + (sum_right - count_right * currIdx)
+                long leftDist = (long) i * currentIndex - leftSum;
+                long rightDist = rightSum - (long) (m - 1 - i) * currentIndex;
+
+                arr[(int) currentIndex] = leftDist + rightDist;
+                
+                leftSum += currentIndex;
+            }
+        }
+
+        return arr;
+    }
+}
