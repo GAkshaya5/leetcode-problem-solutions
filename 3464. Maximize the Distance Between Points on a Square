@@ -1,0 +1,95 @@
+#include <vector>
+#include <algorithm>
+#include <cmath>
+
+using namespace std;
+
+class Solution {
+    struct Point {
+        long long x, y, p;
+    };
+
+    long long getManhattan(const Point& a, const Point& b) {
+        return abs(a.x - b.x) + abs(a.y - b.y);
+    }
+
+public:
+    int maxDistance(int side, vector<vector<int>>& points, int k) {
+        int n = points.size();
+        vector<Point> pts(n);
+
+        // 1. Map 2D points to 1D perimeter positions
+        for (int i = 0; i < n; ++i) {
+            long long x = points[i][0], y = points[i][1];
+            pts[i].x = x;
+            pts[i].y = y;
+            if (y == 0) pts[i].p = x;
+            else if (x == side) pts[i].p = side + y;
+            else if (y == side) pts[i].p = 2LL * side + (side - x);
+            else pts[i].p = 3LL * side + (side - y);
+        }
+
+        sort(pts.begin(), pts.end(), [](const Point& a, const Point& b) {
+            return a.p < b.p;
+        });
+
+        // Duplicate points to handle circularity easily
+        vector<Point> circle = pts;
+        for (int i = 0; i < n; ++i) {
+            circle.push_back(pts[i]);
+        }
+
+        auto check = [&](int mid) {
+            // jump[i] stores the index of the first point >= mid Manhattan distance away
+            vector<int> next(2 * n, 2 * n);
+            int right = 0;
+            for (int left = 0; left < 2 * n; ++left) {
+                while (right < 2 * n && (right <= left || getManhattan(circle[left], circle[right]) < mid)) {
+                    right++;
+                }
+                next[left] = right;
+            }
+
+            // Binary Lifting Table: up[i][p] is the index after 2^p jumps
+            vector<vector<int>> up(2 * n + 1, vector<int>(5, 2 * n)); 
+            for (int i = 0; i < 2 * n; ++i) up[i][0] = next[i];
+            
+            for (int p = 1; p < 5; ++p) {
+                for (int i = 0; i < 2 * n; ++i) {
+                    if (up[i][p - 1] != 2 * n) {
+                        up[i][p] = up[up[i][p - 1]][p - 1];
+                    }
+                }
+            }
+
+            // Try starting from every possible first point
+            // Since k is small, we only need to check the first few gaps
+            for (int i = 0; i < n; ++i) {
+                int curr = i;
+                int steps = k - 1;
+                for (int p = 0; p < 5; ++p) {
+                    if ((steps >> p) & 1) curr = up[curr][p];
+                    if (curr >= 2 * n) break;
+                }
+
+                if (curr < i + n && getManhattan(circle[curr], circle[i]) >= mid) {
+                    return true;
+                }
+            }
+            return false;
+        };
+
+        int low = 0, high = 2 * side, ans = 0;
+        while (low <= high) {
+            int mid = low + (high - low) / 2;
+            if (check(mid)) {
+                ans = mid;
+                low = mid + 1;
+            } else {
+                high = mid - 1;
+            }
+        }
+
+        return ans;
+    }
+};
