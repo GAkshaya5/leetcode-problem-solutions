@@ -1,0 +1,61 @@
+#include <vector>
+#include <queue>
+#include <set>
+
+using namespace std;
+
+class Solution {
+public:
+    bool hasValidPath(vector<vector<int>>& grid) {
+        int m = grid.size();
+        int n = grid[0].size();
+        
+        // directions[street_type] = { {dr1, dc1}, {dr2, dc2} }
+        // We use a 1-based index to match the problem's street types (1-6)
+        vector<vector<vector<int>>> dirs = {
+            {}, // 0 (unused)
+            {{0, -1}, {0, 1}},  // 1: left, right
+            {{-1, 0}, {1, 0}},  // 2: up, down
+            {{0, -1}, {1, 0}},  // 3: left, down
+            {{0, 1}, {1, 0}},   // 4: right, down
+            {{0, -1}, {-1, 0}}, // 5: left, up
+            {{0, 1}, {-1, 0}}   // 6: right, up
+        };
+
+        queue<pair<int, int>> q;
+        q.push({0, 0});
+        
+        vector<vector<bool>> visited(m, vector<bool>(n, false));
+        visited[0][0] = true;
+
+        while (!q.empty()) {
+            auto [r, c] = q.front();
+            q.pop();
+
+            if (r == m - 1 && c == n - 1) return true;
+
+            for (auto& d : dirs[grid[r][c]]) {
+                int nr = r + d[0];
+                int nc = c + d[1];
+
+                if (nr >= 0 && nr < m && nc >= 0 && nc < n && !visited[nr][nc]) {
+                    // Handshake check: Does the neighbor have a pipe pointing back to us?
+                    bool canConnectBack = false;
+                    for (auto& backDir : dirs[grid[nr][nc]]) {
+                        if (backDir[0] == -d[0] && backDir[1] == -d[1]) {
+                            canConnectBack = true;
+                            break;
+                        }
+                    }
+
+                    if (canConnectBack) {
+                        visited[nr][nc] = true;
+                        q.push({nr, nc});
+                    }
+                }
+            }
+        }
+
+        return false;
+    }
+};
