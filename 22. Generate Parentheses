@@ -1,0 +1,27 @@
+class Solution {
+public:
+    vector<string> generateParenthesis(int n) {
+        vector<string> result;
+        backtrack(result, "", 0, 0, n);
+        return result;
+    }
+
+private:
+    void backtrack(vector<string>& res, string current, int open, int close, int max) {
+        // Base case: if the string reaches the maximum length (2 * n)
+        if (current.length() == max * 2) {
+            res.push_back(current);
+            return;
+        }
+
+        // Rule 1: Can we add an opening parenthesis?
+        if (open < max) {
+            backtrack(res, current + "(", open + 1, close, max);
+        }
+
+        // Rule 2: Can we add a closing parenthesis?
+        if (close < open) {
+            backtrack(res, current + ")", open, close + 1, max);
+        }
+    }
+};
