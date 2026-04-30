@@ -1,0 +1,54 @@
+class Solution {
+public:
+    int maxPathScore(vector<vector<int>>& grid, int k) {
+        int m = grid.size();
+        int n = grid[0].size();
+        
+        // dp[i][j][cost] = max_score
+        // Initialize with -1 to represent unreachable states
+        vector<vector<vector<int>>> dp(m, vector<vector<int>>(n, vector<int>(k + 1, -1)));
+
+        // Initial cell (0, 0)
+        int startVal = grid[0][0];
+        int startCost = (startVal == 0) ? 0 : 1;
+        int startScore = startVal;
+
+        if (startCost <= k) {
+            dp[0][0][startCost] = startScore;
+        } else {
+            return -1; // Starting cell already exceeds k
+        }
+
+        for (int i = 0; i < m; ++i) {
+            for (int j = 0; j < n; ++j) {
+                for (int c = 0; c <= k; ++c) {
+                    if (dp[i][j][c] == -1) continue;
+
+                    // Possible moves: Right and Down
+                    int directions[2][2] = {{0, 1}, {1, 0}};
+                    for (auto& dir : directions) {
+                        int ni = i + dir[0];
+                        int nj = j + dir[1];
+
+                        if (ni < m && nj < n) {
+                            int nextVal = grid[ni][nj];
+                            int moveCost = (nextVal == 0) ? 0 : 1;
+                            int moveScore = nextVal;
+
+                            if (c + moveCost <= k) {
+                                dp[ni][nj][c + moveCost] = max(dp[ni][nj][c + moveCost], dp[i][j][c] + moveScore);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        int maxScore = -1;
+        for (int c = 0; c <= k; ++c) {
+            maxScore = max(maxScore, dp[m - 1][n - 1][c]);
+        }
+
+        return maxScore;
+    }
+};
