@@ -1,0 +1,51 @@
+import java.util.*;
+
+class Solution {
+    public List<Integer> findSubstring(String s, String[] words) {
+        List<Integer> res = new ArrayList<>();
+        if (s == null || words == null || words.length == 0) return res;
+
+        int wordLen = words[0].length();
+        int wordCount = words.length;
+        int totalLen = wordLen * wordCount;
+        
+        Map<String, Integer> counts = new HashMap<>();
+        for (String word : words) {
+            counts.put(word, counts.getOrDefault(word, 0) + 1);
+        }
+
+        // We only need to check offsets from 0 to wordLen - 1
+        for (int i = 0; i < wordLen; i++) {
+            int left = i, count = 0;
+            Map<String, Integer> curMap = new HashMap<>();
+            
+            for (int j = i; j <= s.length() - wordLen; j += wordLen) {
+                String str = s.substring(j, j + wordLen);
+                
+                if (counts.containsKey(str)) {
+                    curMap.put(str, curMap.getOrDefault(str, 0) + 1);
+                    count++;
+                    
+                    // If we have more instances of 'str' than needed, slide left
+                    while (curMap.get(str) > counts.get(str)) {
+                        String leftWord = s.substring(left, left + wordLen);
+                        curMap.put(leftWord, curMap.get(leftWord) - 1);
+                        count--;
+                        left += wordLen;
+                    }
+                    
+                    // Valid window found
+                    if (count == wordCount) {
+                        res.add(left);
+                    }
+                } else {
+                    // Invalid word found, reset window
+                    curMap.clear();
+                    count = 0;
+                    left = j + wordLen;
+                }
+            }
+        }
+        return res;
+    }
+}
