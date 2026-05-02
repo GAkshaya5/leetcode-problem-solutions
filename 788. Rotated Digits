@@ -1,0 +1,40 @@
+class Solution {
+    int make(int x) {
+        int r = 0;
+        for (int w = 1; x; x /= 10, w *= 10) {
+            const int c = x % 10;
+            int temp = -1;
+            switch(c) {
+                case 0: case 1: case 8:
+                    temp = c;
+                    break;
+                case 2:
+                    temp = 5;
+                    break;
+                case 5:
+                    temp = 2;
+                    break;
+                case 6:
+                    temp = 9;
+                    break;
+                case 9:
+                    temp = 6;
+                    break;
+            }
+            if (temp < 0) {
+                return -1;
+            }
+            r += w * temp;
+        }
+        return r;
+    }
+public:
+    int rotatedDigits(int n) {
+        int r = 0;
+        for (int i = 1; i <= n; ++i) {
+            const int x = make(i);
+            r += x > 0 && x != i;
+        }
+        return r;
+    }   
+};
