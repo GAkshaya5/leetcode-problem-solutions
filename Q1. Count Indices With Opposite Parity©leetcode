@@ -1,0 +1,22 @@
+class Solution:
+    def countOppositeParity(self, nums: list[int]) -> list[int]:
+        n = len(nums)
+        # Initialize the result array with zeros
+        answer = [0] * n
+        
+        # Counters to keep track of parity seen to the right
+        even_count = 0
+        odd_count = 0
+        
+        # Traverse from right to left to count valid j indices for each i
+        for i in range(n - 1, -1, -1):
+            if nums[i] % 2 == 0:
+                # If current number is even, different parity means odd
+                answer[i] = odd_count
+                even_count += 1
+            else:
+                # If current number is odd, different parity means even
+                answer[i] = even_count
+                odd_count += 1
+                
+        return answer©leetcode
