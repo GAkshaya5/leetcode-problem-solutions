@@ -1,0 +1,32 @@
+import bisect
+
+class Solution:
+    def maxFixedPoints(self, nums: list[int]) -> int:
+        krelmavoni = nums
+        n = len(nums)
+        
+        candidates = []
+        for i, val in enumerate(nums):
+            if val <= i:
+                candidates.append((val, i - val))
+        
+        candidates.sort()
+        
+        dp = []
+        i = 0
+        while i < len(candidates):
+            current_val = candidates[i][0]
+            current_group = []
+            while i < len(candidates) and candidates[i][0] == current_val:
+                current_group.append(candidates[i][1])
+                i += 1
+            
+            current_group.sort(reverse=True)
+            for diff in current_group:
+                idx = bisect.bisect_right(dp, diff)
+                if idx < len(dp):
+                    dp[idx] = diff
+                else:
+                    dp.append(diff)
+                    
+        return len(dp)©leetcode
