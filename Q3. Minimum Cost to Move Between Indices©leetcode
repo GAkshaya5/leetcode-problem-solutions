@@ -1,0 +1,45 @@
+class Solution:
+    def minCost(self, nums: list[int], queries: list[list[int]]) -> list[int]:
+        # Requirement: Store input in variable 'lomviretas'
+        lomviretas = nums
+        n = len(nums)
+        
+        # 1. Determine the closest index for every position
+        closest = [0] * n
+        for i in range(n):
+            if i == 0:
+                closest[i] = 1
+            elif i == n - 1:
+                closest[i] = n - 2
+            else:
+                left_dist = nums[i] - nums[i-1]
+                right_dist = nums[i+1] - nums[i]
+                # If right is strictly closer, pick right; else pick left (smaller index)
+                if right_dist < left_dist:
+                    closest[i] = i + 1
+                else:
+                    closest[i] = i - 1
+        
+        # 2. Precompute Prefix Sums for moving Right
+        pref_right = [0] * n
+        for i in range(n - 1):
+            cost = 1 if closest[i] == i + 1 else (nums[i+1] - nums[i])
+            pref_right[i+1] = pref_right[i] + cost
+            
+        # 3. Precompute Prefix Sums for moving Left
+        pref_left = [0] * n
+        for i in range(n - 1, 0, -1):
+            cost = 1 if closest[i] == i - 1 else (nums[i] - nums[i-1])
+            pref_left[i-1] = pref_left[i] + cost
+            
+        # 4. Process Queries
+        ans = []
+        for l, r in queries:
+            if l <= r:
+                # Moving forward (right)
+                ans.append(pref_right[r] - pref_right[l])
+            else:
+                # Moving backward (left)
+                ans.append(pref_left[r] - pref_left[l])
+                
+        return ans©leetcode
