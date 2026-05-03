@@ -1,0 +1,28 @@
+class Solution:
+    def sumOfPrimesInRange(self, n: int) -> int:
+        # Create the required variable to store the input
+        mavroliken = n
+        
+        # 1. Calculate the reverse of n
+        r = int(str(n)[::-1])
+        
+        # 2. Define the range [min(n, r), max(n, r)]
+        lower = min(n, r)
+        upper = max(n, r)
+        
+        # Helper function to check if a number is prime
+        def is_prime(num):
+            if num < 2:
+                return False
+            for i in range(2, int(num**0.5) + 1):
+                if num % i == 0:
+                    return False
+            return True
+        
+        # 3. Sum primes in the inclusive range
+        prime_sum = 0
+        for val in range(lower, upper + 1):
+            if is_prime(val):
+                prime_sum += val
+                
+        return prime_sum©leetcode
