@@ -1,0 +1,34 @@
+#include <stdlib.h>
+#include <string.h>
+
+void backtrack(int* candidates, int candidatesSize, int target, int** results, int* columnSizes, int* returnSize, int* currentCombo, int comboSize, int start) {
+    if (target == 0) {
+        // Found a valid combination, copy it to results
+        results[*returnSize] = (int*)malloc(comboSize * sizeof(int));
+        memcpy(results[*returnSize], currentCombo, comboSize * sizeof(int));
+        columnSizes[*returnSize] = comboSize;
+        (*returnSize)++;
+        return;
+    }
+
+    for (int i = start; i < candidatesSize; i++) {
+        if (candidates[i] <= target) {
+            currentCombo[comboSize] = candidates[i];
+            // Reuse the same element by passing 'i' as the next start index
+            backtrack(candidates, candidatesSize, target - candidates[i], results, columnSizes, returnSize, currentCombo, comboSize + 1, i);
+        }
+    }
+}
+
+int** combinationSum(int* candidates, int candidatesSize, int target, int* returnSize, int** returnColumnSizes) {
+    // The problem guarantees < 150 combinations, but we'll allocate 500 for safety
+    int** results = (int**)malloc(500 * sizeof(int*));
+    *returnColumnSizes = (int*)malloc(500 * sizeof(int));
+    int* currentCombo = (int*)malloc(target * sizeof(int)); // Max depth is target (if elements are 1)
+    
+    *returnSize = 0;
+    backtrack(candidates, candidatesSize, target, results, *returnColumnSizes, returnSize, currentCombo, 0, 0);
+    
+    free(currentCombo);
+    return results;
+}
