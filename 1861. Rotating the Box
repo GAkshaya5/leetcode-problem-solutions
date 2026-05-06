@@ -1,0 +1,25 @@
+class Solution:
+    def rotateTheBox(self, boxGrid: List[List[str]]) -> List[List[str]]:
+        m = len(boxGrid)
+        n = len(boxGrid[0])
+        
+        # Step 1: Apply gravity to each row (moving stones to the right)
+        for row in boxGrid:
+            empty_pos = n - 1  # Track the rightmost available spot
+            for c in range(n - 1, -1, -1):
+                if row[c] == '*':
+                    # Obstacle resets the available empty position
+                    empty_pos = c - 1
+                elif row[c] == '#':
+                    # Move stone to the rightmost empty position
+                    row[c], row[empty_pos] = row[empty_pos], row[c]
+                    empty_pos -= 1
+        
+        # Step 2: Create a new rotated matrix (n x m)
+        # Element at (r, c) moves to (c, m - 1 - r)
+        res = [['' for _ in range(m)] for _ in range(n)]
+        for r in range(m):
+            for c in range(n):
+                res[c][m - 1 - r] = boxGrid[r][c]
+                
+        return res
