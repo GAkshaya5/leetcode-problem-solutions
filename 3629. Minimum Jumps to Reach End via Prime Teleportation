@@ -1,0 +1,56 @@
+int check[1000006];
+class Solution {
+    bool isPrime(int x) {
+        if (check[x]) return check[x] > 0;
+        if (x < 2) {
+            check[x] = -1;
+            return false;
+        }
+        for (int i = 2; i * i <= x; ++i) {
+            if (x % i == 0) {
+                check[x] = -1;
+                return false;
+            }
+        }
+        check[x] = 1;
+        return true;
+    }
+public:
+    int minJumps(vector<int>& nums) {
+        const int m = *max_element(nums.begin(), nums.end());
+        vector<vector<int>> have(m + 1);
+        const int n = nums.size();
+        for (int i = 0; i < n; ++i) {
+            have[nums[i]].push_back(i);
+        }
+        vector<int> mark(n, -1);
+        mark[0] = 0;
+        queue<int> q;
+        q.push(0);
+        unordered_set<int> seen;
+        for (; !q.empty() && mark.back() < 0;) {
+            const int x = q.front();
+            q.pop();
+            if (x && mark[x - 1] < 0) {
+                mark[x - 1] = mark[x] + 1;
+                q.push(x - 1);
+            }
+            if (x + 1 < n && mark[x + 1] < 0) {
+                mark[x + 1] = mark[x] + 1;
+                q.push(x + 1);
+            }
+            if (seen.count(nums[x]) || !isPrime(nums[x])) continue;
+            seen.insert(nums[x]);
+            for (int i = nums[x]; i <= m; i += nums[x]) {
+                for (int y : have[i]) {
+                    if (mark[y] < 0) {
+                        mark[y] = mark[x] + 1;
+                        q.push(y);
+                    }
+                }
+            }
+            
+        }
+        return mark.back();
+    }
+};
