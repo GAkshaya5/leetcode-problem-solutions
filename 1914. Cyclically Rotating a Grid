@@ -1,0 +1,40 @@
+class Solution {
+    int get(int x, int y, int m) {
+        return (x += y) >= m ? (x - m) : x;   
+    }
+
+public:
+    vector<vector<int>> rotateGrid(vector<vector<int>>& grid, int k) {
+        for (int x = 0, y = 0, m = grid.size(), n = grid[0].size(); m && n; m -= 2, n -= 2, ++x, ++y) {
+            vector<int> v;
+            for (int i = 0; i < n; ++i) {
+                v.push_back(grid[x][y + i]);
+            }
+            for (int i = 1; i < m; ++i) {
+                v.push_back(grid[x + i][y + n - 1]);
+            }
+            for (int i = n - 2; i >= 0; --i) {
+                v.push_back(grid[x + m - 1][y + i]);
+            }
+            for (int i = m - 2; i > 0; --i) {
+                v.push_back(grid[x + i][y]);
+            }
+            const int s = v.size(), p = k % s;
+            int ind = 0;
+              for (int i = 0; i < n; ++i) {
+                grid[x][y + i] = v[get(ind++, p, s)];
+            }
+            for (int i = 1; i < m; ++i) {
+                grid[x + i][y + n - 1] = v[get(ind++, p, s)];
+            }
+            for (int i = n - 2; i >= 0; --i) {
+                grid[x + m - 1][y + i] = v[get(ind++, p, s)];
+            }
+            for (int i = m - 2; i; --i) {
+                grid[x + i][y] = v[get(ind++, p, s)];
+            }
+        }
+        return grid;
+        
+    }
+};
