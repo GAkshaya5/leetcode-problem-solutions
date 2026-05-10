@@ -1,0 +1,42 @@
+class Solution {
+public:
+    void backtrack(vector<int>& nums, vector<bool>& used, vector<int>& current, vector<vector<int>>& result) {
+        // Base case: if the current permutation is the same size as nums
+        if (current.size() == nums.size()) {
+            result.push_back(current);
+            return;
+        }
+
+        for (int i = 0; i < nums.size(); i++) {
+            // Skip if the element is already used in the current path
+            if (used[i]) continue;
+
+            // Skip duplicates: 
+            // If the current element is the same as the previous one AND 
+            // the previous one was not used in this path, it means we already 
+            // processed this value at this level.
+            if (i > 0 && nums[i] == nums[i - 1] && !used[i - 1]) continue;
+
+            used[i] = true;
+            current.push_back(nums[i]);
+            
+            backtrack(nums, used, current, result);
+            
+            // Backtrack: reset the state for the next branch
+            used[i] = false;
+            current.pop_back();
+        }
+    }
+
+    vector<vector<int>> permuteUnique(vector<int>& nums) {
+        vector<vector<int>> result;
+        vector<int> current;
+        vector<bool> used(nums.size(), false);
+        
+        // Step 1: Sort the array to make identifying duplicates easy
+        sort(nums.begin(), nums.end());
+        
+        backtrack(nums, used, current, result);
+        return result;
+    }
+};
