@@ -1,0 +1,24 @@
+class Solution {
+public:
+    vector<vector<string>> groupAnagrams(vector<string>& strs) {
+        // Map to store the sorted string as key and the list of anagrams as value
+        unordered_map<string, vector<string>> anagramMap;
+        
+        for (string s : strs) {
+            string sorted_s = s;
+            // Sort the string to create a unique key for all anagrams
+            sort(sorted_s.begin(), sorted_s.end());
+            
+            // Group the original string under its sorted key
+            anagramMap[sorted_s].push_back(s);
+        }
+        
+        // Prepare the final result format
+        vector<vector<string>> result;
+        for (auto const& [key, group] : anagramMap) {
+            result.push_back(group);
+        }
+        
+        return result;
+    }
+};
