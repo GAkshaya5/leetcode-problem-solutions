@@ -1,0 +1,17 @@
+class Solution {
+public:
+    int maxSubArray(vector<int>& nums) {
+        int max_so_far = nums[0];
+        int current_max = nums[0];
+        
+        for (int i = 1; i < nums.size(); i++) {
+            // Decide: Start fresh at nums[i] or keep adding to the current sequence?
+            current_max = max(nums[i], current_max + nums[i]);
+            
+            // Update the global maximum if the current path is better
+            max_so_far = max(max_so_far, current_max);
+        }
+        
+        return max_so_far;
+    }
+};
