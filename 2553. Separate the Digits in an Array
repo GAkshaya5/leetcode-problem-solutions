@@ -1,0 +1,20 @@
+class Solution {
+public:
+    vector<int> separateDigits(vector<int>& nums) {
+        vector<int> answer;
+        for (int num : nums) {
+            vector<int> temp;
+            // Extract digits using modulo and division
+            while (num > 0) {
+                temp.push_back(num % 10);
+                num /= 10;
+            }
+            // Digits were extracted in reverse (e.g., 13 -> [3, 1])
+            // Append them to answer in correct order (1, 3)
+            for (int i = temp.size() - 1; i >= 0; i--) {
+                answer.push_back(temp[i]);
+            }
+        }
+        return answer;
+    }
+};
