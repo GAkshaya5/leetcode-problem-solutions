@@ -1,0 +1,27 @@
+class Solution {
+public:
+    bool isGood(vector<int>& nums) {
+        int n = 0;
+        for (int x : nums) {
+            n = max(n, x);
+        }
+
+        // According to the rule, base[n] has length n + 1
+        if (nums.size() != n + 1) {
+            return false;
+        }
+
+        vector<int> count(n + 1, 0);
+        for (int x : nums) {
+            count[x]++;
+        }
+
+        // Check 1 to n-1 appear once
+        for (int i = 1; i < n; i++) {
+            if (count[i] != 1) return false;
+        }
+
+        // Check n appears twice
+        return count[n] == 2;
+    }
+};
