@@ -1,0 +1,41 @@
+class Solution {
+    public int[][] generateMatrix(int n) {
+        int[][] matrix = new int[n][n];
+        
+        // Define our 4 boundaries
+        int top = 0;
+        int bottom = n - 1;
+        int left = 0;
+        int right = n - 1;
+        
+        int num = 1; // The starting number to insert
+        
+        while (top <= bottom && left <= right) {
+            // 1. Move right across the top row
+            for (int j = left; j <= right; j++) {
+                matrix[top][j] = num++;
+            }
+            top++; // Row is done, move boundary down
+            
+            // 2. Move down the rightmost column
+            for (int i = top; i <= bottom; i++) {
+                matrix[i][right] = num++;
+            }
+            right--; // Column is done, move boundary left
+            
+            // 3. Move left across the bottom row
+            for (int j = right; j >= left; j--) {
+                matrix[bottom][j] = num++;
+            }
+            bottom--; // Row is done, move boundary up
+            
+            // 4. Move up the leftmost column
+            for (int i = bottom; i >= top; i--) {
+                matrix[i][left] = num++;
+            }
+            left++; // Column is done, move boundary right
+        }
+        
+        return matrix;
+    }
+}
