@@ -1,0 +1,39 @@
+import java.util.LinkedList;
+import java.util.Queue;
+
+class Solution {
+    public boolean canReach(int[] arr, int start) {
+        Queue<Integer> queue = new LinkedList<>();
+        queue.add(start);
+        
+        while (!queue.isEmpty()) {
+            int curr = queue.poll();
+            
+            // Check if we reached a 0 element
+            if (arr[curr] == 0) {
+                return true;
+            }
+            
+            // If the value is negative, it means we already visited this index
+            if (arr[curr] < 0) {
+                continue;
+            }
+            
+            int jumpLength = arr[curr];
+            // Mark the current index as visited by negating its value
+            arr[curr] = -arr[curr];
+            
+            // Move forward
+            if (curr + jumpLength < arr.length && arr[curr + jumpLength] >= 0) {
+                queue.add(curr + jumpLength);
+            }
+            
+            // Move backward
+            if (curr - jumpLength >= 0 && arr[curr - jumpLength] >= 0) {
+                queue.add(curr - jumpLength);
+            }
+        }
+        
+        return false;
+    }
+}
