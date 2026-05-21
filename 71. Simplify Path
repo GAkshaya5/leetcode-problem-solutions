@@ -1,0 +1,20 @@
+class Solution:
+    def simplifyPath(self, path: str) -> str:
+        # Split the path by '/'
+        segments = path.split('/')
+        stack = []
+        
+        for segment in segments:
+            # If it's a '..', we move up a directory level (pop from stack)
+            if segment == '..':
+                if stack:
+                    stack.pop()
+            # If it's empty or '.', we do nothing
+            elif segment == '.' or segment == '':
+                continue
+            # Otherwise, it's a valid directory or file name
+            else:
+                stack.append(segment)
+                
+        # Join the remaining directories with '/' and ensure it starts with '/'
+        return '/' + '/'.join(stack)
