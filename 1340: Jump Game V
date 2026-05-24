@@ -1,0 +1,48 @@
+import java.util.Arrays;
+
+class Solution {
+    public int maxJumps(int[] arr, int d) {
+        int n = arr.length;
+        int[] memo = new int[n];
+        int maxVisited = 0;
+        
+        // Start from every possible index and find the global maximum
+        for (int i = 0; i < n; i++) {
+            maxVisited = Math.max(maxVisited, dfs(arr, d, i, memo));
+        }
+        
+        return maxVisited;
+    }
+    
+    private int dfs(int[] arr, int d, int i, int[] memo) {
+        // If already calculated, return the cached result
+        if (memo[i] != 0) {
+            return memo[i];
+        }
+        
+        int maxJumpsFromI = 1; // Base case: visiting just index 'i' itself
+        int n = arr.length;
+        
+        // 1. Look to the right (i + x)
+        for (int x = 1; x <= d && i + x < n; x++) {
+            // If we hit a wall (equal or higher bar), we cannot jump further right
+            if (arr[i + x] >= arr[i]) {
+                break;
+            }
+            maxJumpsFromI = Math.max(maxJumpsFromI, 1 + dfs(arr, d, i + x, memo));
+        }
+        
+        // 2. Look to the left (i - x)
+        for (int x = 1; x <= d && i - x >= 0; x++) {
+            // If we hit a wall (equal or higher bar), we cannot jump further left
+            if (arr[i - x] >= arr[i]) {
+                break;
+            }
+            maxJumpsFromI = Math.max(maxJumpsFromI, 1 + dfs(arr, d, i - x, memo));
+        }
+        
+        // Cache the result before returning
+        memo[i] = maxJumpsFromI;
+        return maxJumpsFromI;
+    }
+}
