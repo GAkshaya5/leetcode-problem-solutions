@@ -1,0 +1,32 @@
+class Solution {
+public:
+    vector<vector<int>> combine(int n, int k) {
+        vector<vector<int>> result;
+        vector<int> current;
+        backtrack(1, n, k, current, result);
+        return result;
+    }
+
+private:
+    void backtrack(int start, int n, int k, vector<int>& current, vector<vector<int>>& result) {
+        // Base case: if the combination is of the required size k
+        if (current.size() == k) {
+            result.push_back(current);
+            return;
+        }
+
+        // Optimization (Pruning): 
+        // 'k - current.size()' is how many elements we still need.
+        // If there aren't enough elements left between 'i' and 'n', we stop early.
+        for (int i = start; i <= n - (k - current.size()) + 1; i++) {
+            // 1. Make a choice
+            current.push_back(i);
+            
+            // 2. Move to the next element
+            backtrack(i + 1, n, k, current, result);
+            
+            // 3. Undo the choice (backtrack)
+            current.pop_back();
+        }
+    }
+};
