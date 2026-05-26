@@ -1,0 +1,27 @@
+class Solution {
+public:
+    void backtrack(int index, vector<int>& nums, vector<int>& current, vector<vector<int>>& result) {
+        // Base case: if we have considered all elements, add the copy of current subset to result
+        if (index == nums.size()) {
+            result.push_back(current);
+            return;
+        }
+        
+        // Choice 1: Include nums[index]
+        current.push_back(nums[index]);
+        backtrack(index + 1, nums, current, result);
+        
+        // Backtrack: Remove the element to try the other choice
+        current.pop_back();
+        
+        // Choice 2: Exclude nums[index]
+        backtrack(index + 1, nums, current, result);
+    }
+
+    vector<vector<int>> subsets(vector<int>& nums) {
+        vector<vector<int>> result;
+        vector<int> current;
+        backtrack(0, nums, current, result);
+        return result;
+    }
+};
