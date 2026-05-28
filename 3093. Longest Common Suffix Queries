@@ -1,0 +1,102 @@
+#include <vector>
+#include <string>
+#include <algorithm>
+
+using namespace std;
+
+struct TrieNode {
+    TrieNode* children[26];
+    int best_index; // Stores the index of the best matching word container string at this prefix
+
+    TrieNode(int default_idx) {
+        for (int i = 0; i < 26; ++i) {
+            children[i] = nullptr;
+        }
+        best_index = default_idx;
+    }
+};
+
+class Solution {
+private:
+    int default_best_idx;
+
+    void insert(TrieNode* root, const string& word, int word_idx, const vector<string>& wordsContainer) {
+        TrieNode* curr = root;
+        // Traverse the string in reverse to handle suffixes as prefixes
+        for (int i = word.length() - 1; i >= 0; --i) {
+            int char_idx = word[i] - 'a';
+            if (curr->children[char_idx] == nullptr) {
+                curr->children[char_idx] = new TrieNode(word_idx);
+            }
+            curr = curr->children[char_idx];
+            
+            // Update the node's best_index based on the criteria:
+            // 1. Shorter length wins.
+            // 2. Same length but smaller container index wins.
+            int curr_best_idx = curr->best_index;
+            if (word.length() < wordsContainer[curr_best_idx].length()) {
+                curr->best_index = word_idx;
+            } else if (word.length() == wordsContainer[curr_best_idx].length()) {
+                if (word_idx < curr_best_idx) {
+                    curr->best_index = word_idx;
+                }
+            }
+        }
+    }
+
+    int search(TrieNode* root, const string& query) {
+        TrieNode* curr = root;
+        int last_valid_idx = default_best_idx;
+        
+        for (int i = query.length() - 1; i >= 0; --i) {
+            int char_idx = query[i] - 'a';
+            if (curr->children[char_idx] == nullptr) {
+                break;
+            }
+            curr = curr->children[char_idx];
+            last_valid_idx = curr->best_index;
+        }
+        return last_valid_idx;
+    }
+
+    // Optional helper to clean up memory and avoid leaks
+    void clear(TrieNode* root) {
+        if (!root) return;
+        for (int i = 0; i < 26; ++i) {
+            if (root->children[i]) {
+                clear(root->children[i]);
+            }
+        }
+        delete root;
+    }
+
+public:
+    vector<int> stringIndices(vector<string>& wordsContainer, vector<string>& wordsQuery) {
+        // Step 1: Find the global fallback default index
+        default_best_idx = 0;
+        for (int i = 1; i < wordsContainer.size(); ++i) {
+            if (wordsContainer[i].length() < wordsContainer[default_best_idx].length()) {
+                default_best_idx = i;
+            }
+        }
+
+        TrieNode* root = new TrieNode(default_best_idx);
+
+        // Step 2: Build the Trie
+        for (int i = 0; i < wordsContainer.size(); ++i) {
+            insert(root, wordsContainer[i], i, wordsContainer);
+        }
+
+        // Step 3: Process the queries
+        vector<int> ans;
+        ans.reserve(wordsQuery.size());
+        for (const string& query : wordsQuery) {
+            ans.push_back(search(root, query));
+        }
+
+        // Clean up heap allocation
+        clear(root);
+
+        return ans;
+    }
+};
