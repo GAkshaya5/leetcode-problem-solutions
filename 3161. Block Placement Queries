@@ -1,0 +1,106 @@
+#include <vector>
+#include <set>
+#include <algorithm>
+
+using namespace std;
+
+class SegmentTree {
+    int n;
+    vector<int> tree;
+
+public:
+    SegmentTree(int n) {
+        this->n = n;
+        tree.assign(4 * n, 0);
+    }
+
+    void update(int node, int start, int end, int idx, int val) {
+        if (start == end) {
+            tree[node] = val;
+            return;
+        }
+        int mid = start + (end - start) / 2;
+        if (idx <= mid) {
+            update(2 * node, start, mid, idx, val);
+        } else {
+            update(2 * node + 1, mid + 1, end, idx, val);
+        }
+        tree[node] = max(tree[2 * node], tree[2 * node + 1]);
+    }
+
+    int query(int node, int start, int end, int l, int r) {
+        if (r < start || end < l) {
+            return 0;
+        }
+        if (l <= start && end <= r) {
+            return tree[node];
+        }
+        int mid = start + (end - start) / 2;
+        return max(query(2 * node, start, mid, l, r),
+                   query(2 * node + 1, mid + 1, end, l, r));
+    }
+};
+
+class Solution {
+public:
+    vector<bool> getResults(vector<vector<int>>& queries) {
+        // Find the upper bound constraint for the segment tree size
+        int max_x = 0;
+        for (const auto& q : queries) {
+            max_x = max(max_x, q[1]);
+        }
+        
+        // Define coordinate limit based on constraints (up to min(50000, 3 * queries.length))
+        int limit = max_x + 1;
+        SegmentTree st(limit);
+        
+        // Set stores active obstacles. Initialize with bounds 0 and a practical infinity
+        set<int> obstacles;
+        obstacles.insert(0);
+        obstacles.insert(limit);
+        
+        // Base case: The gap at the boundary 'limit' from 0 is 'limit'
+        st.update(1, 0, limit, limit, limit);
+        
+        vector<bool> results;
+        
+        for (const auto& q : queries) {
+            int type = q[0];
+            if (type == 1) {
+                int x = q[1];
+                
+                // Find adjacent obstacles
+                auto it = obstacles.lower_bound(x);
+                int next_obs = *it;
+                int prev_obs = *prev(it);
+                
+                // Add new obstacle
+                obstacles.insert(x);
+                
+                // Update Segment Tree gaps
+                st.update(1, 0, limit, x, x - prev_obs);
+                st.update(1, 0, limit, next_obs, next_obs - x);
+                
+            } else if (type == 2) {
+                int x = q[1];
+                int sz = q[2];
+                
+                // Find the obstacle immediately preceding or equal to x
+                auto it = obstacles.upper_bound(x);
+                int prev_obs = *prev(it);
+                
+                // 1. Max gap completely within the obstacles before or at x
+                int max_gap_before = st.query(1, 0, limit, 0, prev_obs);
+                
+                // 2. The remaining trailing gap from the last obstacle to x
+                int trailing_gap = x - prev_obs;
+                
+                int max_possible_block = max(max_gap_before, trailing_gap);
+                
+                results.push_back(max_possible_block >= sz);
+            }
+        }
+        
+        return results;
+    }
+};
