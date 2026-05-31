@@ -1,0 +1,70 @@
+#include <stdlib.h>
+
+// Helper comparison function for qsort
+int compare(const void* a, const void* b) {
+    return (*(int*)a - *(int*)b);
+}
+
+// Backtracking helper function
+void backtrack(int* nums, int numsSize, int start, int* currentSubset, int currentSize, 
+               int*** result, int* resultSize, int** returnColumnSizes, int* capacity) {
+    
+    // 1. Add the current subset to our result array
+    if (*resultSize >= *capacity) {
+        *capacity *= 2;
+        *result = (int**)realloc(*result, (*capacity) * sizeof(int*));
+        *returnColumnSizes = (int*)realloc(*returnColumnSizes, (*capacity) * sizeof(int));
+    }
+    
+    // Allocate memory for the current subset copy
+    (*result)[*resultSize] = (int*)malloc(currentSize * sizeof(int));
+    for (int i = 0; i < currentSize; i++) {
+        (*result)[*resultSize][i] = currentSubset[i];
+    }
+    (*returnColumnSizes)[*resultSize] = currentSize;
+    (*resultSize)++;
+    
+    // 2. Explore further combinations
+    for (int i = start; i < numsSize; i++) {
+        // CRITICAL: Skip duplicates!
+        // If the current element is the same as the previous element, and we didn't just 
+        // choose the previous element in this recursion level, skip it.
+        if (i > start && nums[i] == nums[i - 1]) {
+            continue;
+        }
+        
+        // Include nums[i] in the current subset
+        currentSubset[currentSize] = nums[i];
+        
+        // Move to the next element
+        backtrack(nums, numsSize, i + 1, currentSubset, currentSize + 1, 
+                  result, resultSize, returnColumnSizes, capacity);
+    }
+}
+
+/**
+ * Return an array of arrays of size *returnSize.
+ * The sizes of the arrays are returned as *returnColumnSizes array.
+ * Note: Both returned array and *columnSizes array must be malloced, assume caller calls free().
+ */
+int** subsetsWithDup(int* nums, int numsSize, int* returnSize, int** returnColumnSizes) {
+    // Step 1: Sort the array to group duplicates together
+    qsort(nums, numsSize, sizeof(int), compare);
+    
+    // Step 2: Initialize memory tracking variables
+    int capacity = 10; // Start with a small dynamic capacity
+    int** result = (int**)malloc(capacity * sizeof(int*));
+    *returnColumnSizes = (int*)malloc(capacity * sizeof(int));
+    *returnSize = 0;
+    
+    // Temporary array to track the subset we are building
+    int* currentSubset = (int*)malloc(numsSize * sizeof(int));
+    
+    // Step 3: Run the backtracking algorithm
+    backtrack(nums, numsSize, 0, currentSubset, 0, &result, returnSize, returnColumnSizes, &capacity);
+    
+    // Clean up temporary tracking array
+    free(currentSubset);
+    
+    return result;
+}
