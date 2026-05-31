@@ -1,0 +1,24 @@
+/**
+ * Note: The returned array must be malloced, assume caller calls free().
+ */
+int* grayCode(int n, int* returnSize) {
+    // There are 2^n elements in an n-bit Gray code sequence
+    int totalElements = 1 << n; 
+    
+    // Allocate memory for the result array
+    int* result = (int*)malloc(totalElements * sizeof(int));
+    if (result == NULL) {
+        *returnSize = 0;
+        return NULL;
+    }
+    
+    // Fill the array using the bitwise Gray code formula
+    for (int i = 0; i < totalElements; i++) {
+        result[i] = i ^ (i >> 1);
+    }
+    
+    // Set the return size for the LeetCode platform
+    *returnSize = totalElements;
+    
+    return result;
+}
