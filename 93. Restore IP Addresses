@@ -1,0 +1,52 @@
+class Solution {
+private:
+    vector<string> result;
+
+    void backtrack(const string& s, int startIndex, int segmentCount, string currentIp) {
+        // Base Case 1: If we have 4 segments, check if we've consumed the entire string
+        if (segmentCount == 4) {
+            if (startIndex == s.length()) {
+                // Remove the trailing dot before adding to results
+                currentIp.pop_back(); 
+                result.push_back(currentIp);
+            }
+            return;
+        }
+
+        // Base Case 2: If we reach the end of the string before getting 4 segments
+        if (startIndex == s.length()) {
+            return;
+        }
+
+        // Try extracting segments of length 1, 2, or 3
+        for (int len = 1; len <= 3; ++len) {
+            // Out of bounds check
+            if (startIndex + len > s.length()) break;
+
+            string segment = s.substr(startIndex, len);
+
+            // Constraint Check 1: No leading zeros
+            if (segment.length() > 1 && segment[0] == '0') break;
+
+            // Constraint Check 2: Value must be <= 255
+            if (stoi(segment) > 255) break;
+
+            // Recursive step: Choose this segment and move forward
+            backtrack(s, startIndex + len, segmentCount + 1, currentIp + segment + ".");
+        }
+    }
+
+public:
+    vector<string> restoreIpAddresses(string s) {
+        result.clear();
+        
+        // Optimization: An IP address can have at most 12 digits (3 * 4)
+        // and must have at least 4 digits (1 * 4)
+        if (s.length() < 4 || s.length() > 12) {
+            return result;
+        }
+
+        backtrack(s, 0, 0, "");
+        return result;
+    }
+};
