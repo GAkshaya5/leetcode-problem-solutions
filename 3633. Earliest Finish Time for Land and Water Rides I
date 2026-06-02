@@ -1,0 +1,31 @@
+#include <vector>
+#include <algorithm>
+#include <climits>
+
+class Solution {
+public:
+    int earliestFinishTime(std::vector<int>& landStartTime, std::vector<int>& landDuration, 
+                           std::vector<int>& waterStartTime, std::vector<int>& waterDuration) {
+        int n = landStartTime.size();
+        int m = waterStartTime.size();
+        int minFinishTime = INT_MAX;
+
+        // Iterate through every possible pair of Land and Water rides
+        for (int i = 0; i < n; ++i) {
+            for (int j = 0; j < m; ++j) {
+                // Scenario A: Land Ride 'i' followed by Water Ride 'j'
+                int landFinish = landStartTime[i] + landDuration[i];
+                int totalFinishA = std::max(landFinish, waterStartTime[j]) + waterDuration[j];
+                
+                // Scenario B: Water Ride 'j' followed by Land Ride 'i'
+                int waterFinish = waterStartTime[j] + waterDuration[j];
+                int totalFinishB = std::max(waterFinish, landStartTime[i]) + landDuration[i];
+                
+                // Track the minimum time encountered
+                minFinishTime = std::min({minFinishTime, totalFinishA, totalFinishB});
+            }
+        }
+
+        return minFinishTime;
+    }
+};
