@@ -1,0 +1,62 @@
+/**
+ * Definition for a binary tree node.
+ * public class TreeNode {
+ * int val;
+ * TreeNode left;
+ * TreeNode right;
+ * TreeNode() {}
+ * TreeNode(int val) { this.val = val; }
+ * TreeNode(int val, TreeNode left, TreeNode right) {
+ * this.val = val;
+ * this.left = left;
+ * this.right = right;
+ * }
+ * }
+ */
+class Solution {
+    public List<TreeNode> generateTrees(int n) {
+        if (n == 0) {
+            return new ArrayList<>();
+        }
+        // Use a HashMap to store previously computed subproblems for memoization
+        Map<String, List<TreeNode>> memo = new HashMap<>();
+        return buildTrees(1, n, memo);
+    }
+    
+    private List<TreeNode> buildTrees(int start, int end, Map<String, List<TreeNode>> memo) {
+        List<TreeNode> allTrees = new ArrayList<>();
+        
+        // Base case: if start > end, no elements to form a subtree.
+        // Add null to the list so the nested loops can still execute.
+        if (start > end) {
+            allTrees.add(null);
+            return allTrees;
+        }
+        
+        // Check cache to avoid redundant work
+        String key = start + "-" + end;
+        if (memo.containsKey(key)) {
+            return memo.get(key);
+        }
+        
+        // Iterate through each number in the range to treat it as the root
+        for (int i = start; i <= end; i++) {
+            // Generate all possible left and right subtrees recursively
+            List<TreeNode> leftTrees = buildTrees(start, i - 1, memo);
+            List<TreeNode> rightTrees = buildTrees(i + 1, end, memo);
+            
+            // Connect each combination of left and right subtrees to the root 'i'
+            for (TreeNode left : leftTrees) {
+                for (TreeNode right : rightTrees) {
+                    TreeNode root = new TreeNode(i);
+                    root.left = left;
+                    root.right = right;
+                    allTrees.add(root);
+                }
+            }
+        }
+        
+        memo.put(key, allTrees);
+        return allTrees;
+    }
+}
