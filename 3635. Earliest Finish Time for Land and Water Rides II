@@ -1,0 +1,136 @@
+#include <vector>
+#include <algorithm>
+#include <climits>
+
+using namespace std;
+
+class Solution {
+public:
+    int earliestFinishTime(vector<int>& landStartTime, vector<int>& landDuration, vector<int>& waterStartTime, vector<int>& waterDuration) {
+        int min_time = INT_MAX;
+        
+        // Preprocess water rides: sort by start time and compute prefix min durations and suffix min sums
+        vector<pair<int, int>> water_rides;
+        for (int i = 0; i < waterStartTime.size(); ++i) {
+            water_rides.emplace_back(waterStartTime[i], waterDuration[i]);
+        }
+        sort(water_rides.begin(), water_rides.end());
+        vector<int> water_starts;
+        vector<int> water_durs;
+        for (const auto& ride : water_rides) {
+            water_starts.push_back(ride.first);
+            water_durs.push_back(ride.second);
+        }
+        
+        vector<int> prefix_min_dur(water_starts.size(), INT_MAX);
+        if (!prefix_min_dur.empty()) {
+            prefix_min_dur[0] = water_durs[0];
+            for (int i = 1; i < water_starts.size(); ++i) {
+                prefix_min_dur[i] = min(prefix_min_dur[i-1], water_durs[i]);
+            }
+        }
+        
+        vector<int> suffix_min_sum(water_starts.size(), INT_MAX);
+        if (!suffix_min_sum.empty()) {
+            suffix_min_sum.back() = water_starts.back() + water_durs.back();
+            for (int i = water_starts.size() - 2; i >= 0; --i) {
+                suffix_min_sum[i] = min(suffix_min_sum[i+1], water_starts[i] + water_durs[i]);
+            }
+        }
+        
+        // Preprocess land rides: sort by start time and compute prefix min durations and suffix min sums
+        vector<pair<int, int>> land_rides;
+        for (int i = 0; i < landStartTime.size(); ++i) {
+            land_rides.emplace_back(landStartTime[i], landDuration[i]);
+        }
+        sort(land_rides.begin(), land_rides.end());
+        vector<int> land_starts;
+        vector<int> land_durs;
+        for (const auto& ride : land_rides) {
+            land_starts.push_back(ride.first);
+            land_durs.push_back(ride.second);
+        }
+        
+        vector<int> prefix_min_ldur(land_starts.size(), INT_MAX);
+        if (!prefix_min_ldur.empty()) {
+            prefix_min_ldur[0] = land_durs[0];
+            for (int i = 1; i < land_starts.size(); ++i) {
+                prefix_min_ldur[i] = min(prefix_min_ldur[i-1], land_durs[i]);
+            }
+        }
+        
+        vector<int> suffix_min_lsum(land_starts.size(), INT_MAX);
+        if (!suffix_min_lsum.empty()) {
+            suffix_min_lsum.back() = land_starts.back() + land_durs.back();
+            for (int i = land_starts.size() - 2; i >= 0; --i) {
+                suffix_min_lsum[i] = min(suffix_min_lsum[i+1], land_starts[i] + land_durs[i]);
+            }
+        }
+        
+        // Evaluate all land rides first scenarios
+        for (int i = 0; i < landStartTime.size(); ++i) {
+            int l_finish = landStartTime[i] + landDuration[i];
+            if (water_starts.empty()) continue;
+            
+            // Binary search for the rightmost waterStart <= l_finish
+            auto it = upper_bound(water_starts.begin(), water_starts.end(), l_finish);
+            int pos = it - water_starts.begin() - 1;
+            int min_candidate = INT_MAX;
+            
+            if (pos >= 0) {
+                // There are waters with start <= l_finish
+                int min_dur = prefix_min_dur[pos];
+                int current_val = l_finish + min_dur;
+                if (current_val < min_candidate) {
+                    min_candidate = current_val;
+                }
+            }
+            
+            if (pos + 1 < water_starts.size()) {
+                // There are waters with start > l_finish
+                int min_sum = suffix_min_sum[pos + 1];
+                if (min_sum < min_candidate) {
+                    min_candidate = min_sum;
+                }
+            }
+            
+            if (min_candidate < min_time) {
+                min_time = min_candidate;
+            }
+        }
+        
+        // Evaluate all water rides first scenarios
+        for (int j = 0; j < waterStartTime.size(); ++j) {
+            int w_finish = waterStartTime[j] + waterDuration[j];
+            if (land_starts.empty()) continue;
+            
+            // Binary search for the rightmost landStart <= w_finish
+            auto it = upper_bound(land_starts.begin(), land_starts.end(), w_finish);
+            int pos = it - land_starts.begin() - 1;
+            int min_candidate = INT_MAX;
+            
+            if (pos >= 0) {
+                // There are lands with start <= w_finish
+                int min_ldur = prefix_min_ldur[pos];
+                int current_val = w_finish + min_ldur;
+                if (current_val < min_candidate) {
+                    min_candidate = current_val;
+                }
+            }
+            
+            if (pos + 1 < land_starts.size()) {
+                // There are lands with start > w_finish
+                int min_lsum = suffix_min_lsum[pos + 1];
+                if (min_lsum < min_candidate) {
+                    min_candidate = min_lsum;
+                }
+            }
+            
+            if (min_candidate < min_time) {
+                min_time = min_candidate;
+            }
+        }
+        
+        return min_time;
+    }
+};
