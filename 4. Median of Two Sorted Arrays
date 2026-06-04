@@ -1,0 +1,49 @@
+#include <vector>
+#include <algorithm>
+#include <climits>
+
+class Solution {
+public:
+    double findMedianSortedArrays(std::vector<int>& nums1, std::vector<int>& nums2) {
+        // Step 1: Ensure nums1 is the smaller array
+        if (nums1.size() > nums2.size()) {
+            return findMedianSortedArrays(nums2, nums1);
+        }
+        
+        int m = nums1.size();
+        int n = nums2.size();
+        int low = 0, high = m;
+        
+        while (low <= high) {
+            // Step 3: Partition points
+            int i = (low + high) / 2;
+            int j = (m + n + 1) / 2 - i;
+            
+            // Step 4: Edge cases handled with INT_MIN and INT_MAX
+            int left1 = (i == 0) ? INT_MIN : nums1[i - 1];
+            int right1 = (i == m) ? INT_MAX : nums1[i];
+            
+            int left2 = (j == 0) ? INT_MIN : nums2[j - 1];
+            int right2 = (j == n) ? INT_MAX : nums2[j];
+            
+            // Step 5: Check if partition is perfect
+            if (left1 <= right2 && left2 <= right1) {
+                // If odd elements
+                if ((m + n) % 2 == 1) {
+                    return std::max(left1, left2);
+                }
+                // If even elements
+                return (std::max(left1, left2) + std::min(right1, right2)) / 2.0;
+            } 
+            else if (left1 > right2) {
+                // Cut is too far right in nums1, move left
+                high = i - 1;
+            } 
+            else {
+                // Cut is too far left in nums1, move right
+                low = i + 1;
+            }
+        }
+        return 0.0;
+    }
+};
