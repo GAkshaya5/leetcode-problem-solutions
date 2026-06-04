@@ -1,0 +1,30 @@
+#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    int totalWaviness(int num1, int num2) {
+        int total = 0;
+        for (int n = num1; n <= num2; ++n) {
+            total += waviness(n);
+        }
+        return total;
+    }
+
+private:
+    int waviness(int n) {
+        vector<int> s;
+        for (; n; s.push_back(n % 10), n /= 10)
+        ;
+        if (s.size() < 3) return 0;
+        int w = 0;
+        for (int i = 1; i + 1 < s.size(); ++i) {
+            int a = s[i - 1];
+            int b = s[i];
+            int c = s[i + 1];
+            if (b > a && b > c) w++;        // peak
+            else if (b < a && b < c) w++;   // valley
+        }
+        return w;
+    }
+};
