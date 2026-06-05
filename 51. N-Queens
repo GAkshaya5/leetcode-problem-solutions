@@ -1,0 +1,60 @@
+#include <vector>
+#include <string>
+
+using namespace std;
+
+class Solution {
+private:
+    vector<vector<string>> ans;
+    
+    void backtrack(int row, int n, vector<string>& board, 
+                   vector<bool>& cols, vector<bool>& diag1, vector<bool>& diag2) {
+        // Base case: If we've successfully placed queens in all rows, record the solution
+        if (row == n) {
+            ans.push_back(board);
+            return;
+        }
+        
+        for (int col = 0; col < n; col++) {
+            // Calculate diagonal indices
+            // Main diagonal (top-left to bottom-right): row - col is constant. Add n-1 to avoid negative indices.
+            int d1 = row - col + (n - 1);
+            // Anti-diagonal (top-right to bottom-left): row + col is constant.
+            int d2 = row + col;
+            
+            // If the column or either diagonal is under attack, skip this placement
+            if (cols[col] || diag1[d1] || diag2[d2]) {
+                continue;
+            }
+            
+            // Place the queen
+            board[row][col] = 'Q';
+            cols[col] = diag1[d1] = diag2[d2] = true;
+            
+            // Move to the next row
+            backtrack(row + 1, n, board, cols, diag1, diag2);
+            
+            // Backtrack: Remove the queen and restore the state
+            board[row][col] = '.';
+            cols[col] = diag1[d1] = diag2[d2] = false;
+        }
+    }
+
+public:
+    vector<vector<string>> solveNQueens(int n) {
+        ans.clear();
+        // Initialize an empty board with '.'
+        vector<string> board(n, string(n, '.'));
+        
+        // Vectors to track attacks:
+        // cols: tracks columns (size n)
+        // diag1: tracks main diagonals (size 2n - 1)
+        // diag2: tracks anti-diagonals (size 2n - 1)
+        vector<bool> cols(n, false);
+        vector<bool> diag1(2 * n - 1, false);
+        vector<bool> diag2(2 * n - 1, false);
+        
+        backtrack(0, n, board, cols, diag1, diag2);
+        return ans;
+    }
+};
