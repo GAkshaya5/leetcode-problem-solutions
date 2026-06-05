@@ -1,0 +1,61 @@
+#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    struct Node { long long cnt, sum; };
+
+    string digits;
+    Node dp[20][11][4][2][2]; // prev_digit:0-10, prev_rel:-1,0,1,2 => map to 0-3
+    bool vis[20][11][4][2][2];
+
+    // compare two digits, returns -1,0,1
+    int cmp(int a, int b) {
+        if (a < b) return -1;
+        if (a > b) return 1;
+        return 0;
+    }
+
+    Node dfs(int pos, int prev_digit, int prev_rel, bool tight, bool started) {
+        if (pos == (int)digits.size())
+            return {started ? 1 : 0, 0};
+
+        auto &res = dp[pos][prev_digit][prev_rel+1][tight][started]; // map -1,0,1,2 → 0..3
+        if (vis[pos][prev_digit][prev_rel+1][tight][started]) return res;
+        vis[pos][prev_digit][prev_rel+1][tight][started] = true;
+        res = {0, 0};
+
+        int limit = tight ? (digits[pos]-'0') : 9;
+        for (int d = 0; d <= limit; ++d) {
+            bool nstarted = started || (d != 0);
+            bool ntight = tight && (d == limit);
+
+            int curr_rel = nstarted && started ? cmp(prev_digit, d) : 2; // 2 = undefined
+
+            Node nxt = dfs(pos+1, nstarted ? d : 10, curr_rel, ntight, nstarted);
+
+            long long add = 0;
+            if (started && prev_rel != 2 && curr_rel != 2) {
+                if (prev_rel == 1 && curr_rel == -1) add = 1; // peak
+                else if (prev_rel == -1 && curr_rel == 1) add = 1; // valley
+            }
+
+            res.cnt += nxt.cnt;
+            res.sum += nxt.sum + add * nxt.cnt;
+        }
+
+        return res;
+    }
+
+    long long f(long long x) {
+        if (x < 0) return 0;
+        digits = to_string(x);
+        memset(vis, 0, sizeof(vis));
+        Node ans = dfs(0, 10, 2, true, false); // prev_digit=10, prev_rel=undefined(2)
+        return ans.sum;
+    }
+
+    long long totalWaviness(long long num1, long long num2) {
+        return f(num2) - f(num1 - 1);
+    }
+};
