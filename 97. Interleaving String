@@ -1,0 +1,44 @@
+class Solution {
+public:
+    bool isInterleave(string s1, string s2, string s3) {
+        int m = s1.length();
+        int n = s2.length();
+        
+        // If the total length doesn't match, s3 cannot be an interleaving
+        if (m + n != s3.length()) {
+            return false;
+        }
+        
+        // Optimize space: Ensure s2 is the smaller string
+        if (m < n) {
+            return isInterleave(s2, s1, s3);
+        }
+        
+        // dp[j] will represent whether s1[0...i-1] and s2[0...j-1] can form s3[0...i+j-1]
+        vector<bool> dp(n + 1, false);
+        
+        // Base case: empty s1 and empty s2 form empty s3
+        dp[0] = true;
+        
+        // Initialize the DP array for an empty s1 (only matching s2 with s3)
+        for (int j = 1; j <= n; ++j) {
+            dp[j] = dp[j - 1] && (s2[j - 1] == s3[j - 1]);
+        }
+        
+        // Fill the DP table row by row
+        for (int i = 1; i <= m; ++i) {
+            // Update the first element of the row (j = 0, meaning s2 is empty)
+            dp[0] = dp[0] && (s1[i - 1] == s3[i - 1]);
+            
+            for (int j = 1; j <= n; ++j) {
+                // Current s3 character index is i + j - 1
+                bool match_s1 = (s1[i - 1] == s3[i + j - 1]) && dp[j];       // comes from top (previous row)
+                bool match_s2 = (s2[j - 1] == s3[i + j - 1]) && dp[j - 1];   // comes from left (current row)
+                
+                dp[j] = match_s1 || match_s2;
+            }
+        }
+        
+        return dp[n];
+    }
+};
