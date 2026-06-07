@@ -1,0 +1,56 @@
+import java.util.*;
+
+/**
+ * Definition for a binary tree node.
+ * public class TreeNode {
+ * int val;
+ * TreeNode left;
+ * TreeNode right;
+ * TreeNode() {}
+ * TreeNode(int val) { this.val = val; }
+ * TreeNode(int val, TreeNode left, TreeNode right) {
+ * this.val = val;
+ * this.left = left;
+ * this.right = right;
+ * }
+ * }
+ */
+class Solution {
+    public TreeNode createBinaryTree(int[][] descriptions) {
+        // Map to store value -> TreeNode mapping
+        Map<Integer, TreeNode> nodeMap = new HashMap<>();
+        // Set to track all children nodes
+        Set<Integer> childrenSet = new HashSet<>();
+
+        // Step 1: Build the tree and track all children
+        for (int[] d : descriptions) {
+            int parentVal = d[0];
+            int childVal = d[1];
+            boolean isLeft = d[2] == 1;
+
+            // Ensure parent and child nodes exist in our map
+            nodeMap.putIfAbsent(parentVal, new TreeNode(parentVal));
+            nodeMap.putIfAbsent(childVal, new TreeNode(childVal));
+
+            // Link parent and child
+            if (isLeft) {
+                nodeMap.get(parentVal).left = nodeMap.get(childVal);
+            } else {
+                nodeMap.get(parentVal).right = nodeMap.get(childVal);
+            }
+
+            // Track that this node is a child
+            childrenSet.add(childVal);
+        }
+
+        // Step 2: Find the root node (the node that is never a child)
+        for (int[] d : descriptions) {
+            int parentVal = d[0];
+            if (!childrenSet.contains(parentVal)) {
+                return nodeMap.get(parentVal);
+            }
+        }
+
+        return null;
+    }
+}
