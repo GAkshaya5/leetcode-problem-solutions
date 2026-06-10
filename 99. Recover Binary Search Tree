@@ -1,0 +1,143 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+// Structure to store heap elements
+typedef struct {
+    long long val;
+    int l;
+    int r;
+} HeapNode;
+
+// Max-Heap implementation
+typedef struct {
+    HeapNode* data;
+    int size;
+    int capacity;
+} MaxHeap;
+
+MaxHeap* createHeap(int capacity) {
+    MaxHeap* heap = (MaxHeap*)malloc(sizeof(MaxHeap));
+    heap->data = (HeapNode*)malloc(sizeof(HeapNode) * (capacity + 1));
+    heap->size = 0;
+    heap->capacity = capacity;
+    return heap;
+}
+
+void swap(HeapNode* a, HeapNode* b) {
+    HeapNode temp = *a;
+    *a = *b;
+    *b = temp;
+}
+
+void push(MaxHeap* heap, HeapNode node) {
+    heap->size++;
+    int i = heap->size;
+    heap->data[i] = node;
+    
+    // Bubble up
+    while (i > 1 && heap->data[i].val > heap->data[i / 2].val) {
+        swap(&heap->data[i], &heap->data[i / 2]);
+        i = i / 2;
+    }
+}
+
+HeapNode pop(MaxHeap* heap) {
+    HeapNode top = heap->data[1];
+    heap->data[1] = heap->data[heap->size];
+    heap->size--;
+    
+    // Bubble down
+    int i = 1;
+    while (2 * i <= heap->size) {
+        int left = 2 * i;
+        int right = 2 * i + 1;
+        int largest = i;
+        
+        if (heap->data[left].val > heap->data[largest].val) {
+            largest = left;
+        }
+        if (right <= heap->size && heap->data[right].val > heap->data[largest].val) {
+            largest = right;
+        }
+        if (largest == i) {
+            break;
+        }
+        swap(&heap->data[i], &heap->data[largest]);
+        i = largest;
+    }
+    return top;
+}
+
+// Global/Static Tables for Sparse Table to avoid huge stack allocations
+int st_min[50005][17];
+int st_max[50005][17];
+int lg[50005];
+
+void buildSparseTable(int* nums, int n) {
+    lg[1] = 0;
+    for (int i = 2; i <= n; i++) {
+        lg[i] = lg[i / 2] + 1;
+    }
+
+    for (int i = 0; i < n; i++) {
+        st_min[i][0] = nums[i];
+        st_max[i][0] = nums[i];
+    }
+
+    for (int j = 1; (1 << j) <= n; j++) {
+        for (int i = 0; i + (1 << j) <= n; i++) {
+            int min_val = st_min[i][j - 1] < st_min[i + (1 << (j - 1))][j - 1] ? st_min[i][j - 1] : st_min[i + (1 << (j - 1))][j - 1];
+            int max_val = st_max[i][j - 1] > st_max[i + (1 << (j - 1))][j - 1] ? st_max[i][j - 1] : st_max[i + (1 << (j - 1))][j - 1];
+            st_min[i][j] = min_val;
+            st_max[i][j] = max_val;
+        }
+    }
+}
+
+long long queryValue(int l, int r) {
+    int k = lg[r - l + 1];
+    int mn = st_min[l][k] < st_min[r - (1 << k) + 1][k] ? st_min[l][k] : st_min[r - (1 << k) + 1][k];
+    int mx = st_max[l][k] > st_max[r - (1 << k) + 1][k] ? st_max[l][k] : st_max[r - (1 << k) + 1][k];
+    return (long long)mx - mn;
+}
+
+long long maxTotalValue(int* nums, int numsSize, int k) {
+    int n = numsSize;
+    buildSparseTable(nums, n);
+
+    // The maximum capacity needed for the heap at any time is n elements
+    MaxHeap* heap = createHeap(n);
+
+    // Initialize heap with the full ranges starting at each index 'l'
+    for (int l = 0; l < n; l++) {
+        HeapNode node;
+        node.val = queryValue(l, n - 1);
+        node.l = l;
+        node.r = n - 1;
+        push(heap, node);
+    }
+
+    long long total_max_value = 0;
+
+    // Extract the top k elements
+    while (k > 0 && heap->size > 0) {
+        HeapNode top = pop(heap);
+        total_max_value += top.val;
+        k--;
+
+        // If the window can shrink from the right side, push the next candidate
+        if (top.r > top.l) {
+            HeapNode next_node;
+            next_node.val = queryValue(top.l, top.r - 1);
+            next_node.l = top.l;
+            next_node.r = top.r - 1;
+            push(heap, next_node);
+        }
+    }
+
+    // Clean up memory
+    free(heap->data);
+    free(heap);
+
+    return total_max_value;
+}
