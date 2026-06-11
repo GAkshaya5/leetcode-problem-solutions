@@ -1,0 +1,28 @@
+/**
+ * Note: The returned array must be malloced, assume caller calls free().
+ */
+int* sortedSquares(int* nums, int numsSize, int* returnSize) {
+    // 1. Allocate memory for the result array
+    int* result = (int*)malloc(numsSize * sizeof(int));
+    *returnSize = numsSize; // Tell LeetCode the size of the returned array
+    
+    // 2. Initialize pointers
+    int left = 0;
+    int right = numsSize - 1;
+    
+    // Fill the result array from right to left (largest to smallest)
+    for (int i = numsSize - 1; i >= 0; i--) {
+        int leftSquare = nums[left] * nums[left];
+        int rightSquare = nums[right] * nums[right];
+        
+        if (leftSquare > rightSquare) {
+            result[i] = leftSquare;
+            left++; // Move left pointer inward
+        } else {
+            result[i] = rightSquare;
+            right--; // Move right pointer inward
+        }
+    }
+    
+    return result;
+}
