@@ -1,0 +1,27 @@
+struct ListNode* deleteDuplicates(struct ListNode* head) {
+    // 1. If the list is empty or has only one item, do nothing
+    if (head == NULL || head->next == NULL) {
+        return head;
+    }
+    
+    // 2. Start at the beginning of the list
+    struct ListNode* current = head;
+    
+    // 3. Keep going until we reach the end of the list
+    while (current != NULL && current->next != NULL) {
+        
+        // If the current value is the same as the next value
+        if (current->val == current->next->val) {
+            struct ListNode* duplicate = current->next; // Save it
+            current->next = current->next->next;       // Skip over it
+            free(duplicate);                           // Erase it from memory
+        } 
+        // If they are different, safely move forward
+        else {
+            current = current->next;
+        }
+    }
+    
+    // 4. Return the cleaned up list
+    return head;
+}
