@@ -1,0 +1,85 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdbool.h>
+
+const int M = 1000000007;
+
+// Structure for adjacency list nodes
+struct Node {
+    int val;
+    struct Node* next;
+};
+
+// Helper function to add an edge to the adjacency list
+void addEdge(struct Node** con, int u, int v) {
+    struct Node* newNode = (struct Node*)malloc(sizeof(struct Node));
+    newNode->val = v;
+    newNode->next = con[u];
+    con[u] = newNode;
+}
+
+// Depth-First Search
+void dfs(int x, int f, int d, struct Node** con, bool* c) {
+    c[d] = true;
+    struct Node* curr = con[x];
+    while (curr != NULL) {
+        int y = curr->val;
+        if (y != f) {
+            dfs(y, x, d + 1, con, c);
+        }
+        curr = curr->next;
+    }
+}
+
+void add(int* x, int y) {
+    if ((*x += y) >= M) {
+        *x -= M;
+    }
+}
+
+int assignEdgeWeights(int** edges, int edgesSize, int* edgesColSize) {
+    if (edgesSize == 0) return 0;
+    
+    int n = edgesSize + 1;
+    
+    // Allocate memory for adjacency list
+    struct Node** con = (struct Node**)calloc(n, sizeof(struct Node*));
+    for (int i = 0; i < edgesSize; i++) {
+        int u = edges[i][0] - 1;
+        int v = edges[i][1] - 1;
+        addEdge(con, u, v);
+        addEdge(con, v, u);
+    }
+    
+    // Allocate memory for the presence array
+    bool* c = (bool*)calloc(n, sizeof(bool));
+    
+    // Perform DFS starting from node 0
+    dfs(0, -1, 0, con, c);
+    
+    // Find the maximum depth achieved
+    int m = n - 1;
+    while (!c[m]) {
+        m--;
+    }
+    
+    // Calculate 2^(m - 1) % M
+    int r = 1;
+    for (int i = 1; i < m; ++i) {
+        add(&r, r);
+    }
+    
+    // Free allocated memory to prevent leaks
+    for (int i = 0; i < n; i++) {
+        struct Node* curr = con[i];
+        while (curr != NULL) {
+            struct Node* temp = curr;
+            curr = curr->next;
+            free(temp);
+        }
+    }
+    free(con);
+    free(c);
+    
+    return r;
+}
