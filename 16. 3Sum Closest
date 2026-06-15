@@ -1,0 +1,32 @@
+class Solution:
+    def threeSumClosest(self, nums: List[int], target: int) -> int:
+        nums.sort()  # Step 1: Sort the array to use the two-pointer technique
+        n = len(nums)
+        diff = float('inf')  # Track the smallest distance to the target found so far
+        res_sum = 0          # Track the actual sum that gave us that smallest distance
+        
+        for i in range(n - 2):  # Loop through the array, leaving room for left and right pointers
+            left = i + 1
+            right = n - 1
+            
+            while left < right:
+                total = nums[i] + nums[left] + nums[right]  # Current triplet sum
+                d = abs(target - total)                     # Distance to target
+                
+                # If this new sum is closer to the target than anything we've seen before:
+                if diff > d:
+                    diff = d
+                    res_sum = total
+                
+                # Exact match found! No need to keep looking.
+                if total == target:
+                    return res_sum
+                
+                # If the sum is too small, we need a larger number. Move left pointer right.
+                if total < target:
+                    left += 1
+                # If the sum is too large, we need a smaller number. Move right pointer left.
+                else:
+                    right -= 1
+                    
+        return res_sum
