@@ -1,0 +1,26 @@
+class Solution {
+public:
+    string processStr(string s) {
+        string r;
+        for (char c : s) {
+            switch(c) {
+                case '*':
+                    if (!r.empty()) {
+                        r.pop_back();
+                    }
+                break;
+                case '#':
+                    r += r;
+                    break;
+                case '%':
+                    reverse(r.begin(), r.end());
+                    break;
+                default:
+                    r.push_back(c);
+                    break;
+            }
+        }
+        return r;
+        
+    }
+};
