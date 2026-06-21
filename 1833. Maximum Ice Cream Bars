@@ -1,0 +1,42 @@
+class Solution {
+    public int maxIceCream(int[] costs, int coins) {
+        // Since costs[i] <= 10^5, we can use a fixed-size array for counting sort
+        int maxCost = 100000;
+        int[] freq = new int[maxCost + 1];
+        
+        // Count the frequency of each ice cream cost
+        for (int cost : costs) {
+            freq[cost]++;
+        }
+        
+        int iceCreamCount = 0;
+        
+        // Iterate through all possible costs greedily from cheapest to most expensive
+        for (int price = 1; price <= maxCost; price++) {
+            if (freq[price] == 0) {
+                continue;
+            }
+            
+            // If we can't even afford one ice cream at this price, we're done
+            if (coins < price) {
+                break;
+            }
+            
+            // Calculate how many ice cream bars of this price we want vs how many we can afford
+            long totalCostForPool = (long) price * freq[price];
+            
+            if (coins >= totalCostForPool) {
+                // We can buy all ice cream bars at this price point
+                ans += freq[price];
+                coins -= totalCostForPool;
+            } else {
+                // We can only afford a partial amount of ice cream bars at this price point
+                int countCanBuy = coins / price;
+                ans += countCanBuy;
+                break; // Out of coins to buy any more expensive ones
+            }
+        }
+        
+        return iceCreamCount;
+    }
+}
