@@ -1,0 +1,27 @@
+class Solution {
+    public int rearrangeCharacters(String s, String target) {
+        int[] sCounts = new int[26];
+        int[] targetCounts = new int[26];
+        
+        // Count frequencies of characters in s
+        for (char c : s.toCharArray()) {
+            sCounts[c - 'a']++;
+        }
+        
+        // Count frequencies of characters in target
+        for (char c : target.toCharArray()) {
+            targetCounts[c - 'a']++;
+        }
+        
+        int maxCopies = Integer.MAX_VALUE;
+        
+        // Find the limiting character (bottleneck)
+        for (char c : target.toCharArray()) {
+            int idx = c - 'a';
+            int possibleCopies = sCounts[idx] / targetCounts[idx];
+            maxCopies = Math.min(maxCopies, possibleCopies);
+        }
+        
+        return maxCopies;
+    }
+}
