@@ -1,0 +1,19 @@
+class Solution {
+    public int maxNumberOfBalloons(String text) {
+        // Frequency array to store counts of all 26 lowercase English letters
+        int[] counts = new int[26];
+        for (char c : text.toCharArray()) {
+            counts[c - 'a']++;
+        }
+        
+        // Find the limiting character count for the word "balloon"
+        int bCount = counts['b' - 'a'];
+        int aCount = counts['a' - 'a'];
+        int lCount = counts['l' - 'a'] / 2; // Each balloon needs 2 'l's
+        int oCount = counts['o' - 'a'] / 2; // Each balloon needs 2 'o's
+        int nCount = counts['n' - 'a'];
+        
+        // The bottleneck determines the maximum number of words we can form
+        return Math.min(bCount, Math.min(aCount, Math.min(lCount, Math.min(oCount, nCount))));
+    }
+}
