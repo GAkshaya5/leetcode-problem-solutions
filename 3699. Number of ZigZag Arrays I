@@ -1,0 +1,70 @@
+class Solution {
+    public int zigZagArrays(int n, int l, int r) {
+        int MOD = 1_000_000_007;
+        int m = r - l + 1;
+        
+        // dp[dir][x] representing the current layer
+        // dir = 0: next needs to be smaller (<)
+        // dir = 1: next needs to be larger (>)
+        long[][] dp = new long[2][m];
+        
+        // Base case: for an array of length 1, every element is valid 
+        // but we haven't established a direction yet. However, any sequence of length 2 
+        // with distinct elements is a valid zigzag starting component. 
+        // Let's initialize for length 2 directly to simplify logic.
+        if (n == 1) return m;
+        
+        // For length 2:
+        // dp[0][x] means next element must be smaller than x, so previous element y < x.
+        // There are 'x' elements smaller than x (from 0 to x-1).
+        // dp[1][x] means next element must be larger than x, so previous element y > x.
+        // There are 'm - 1 - x' elements larger than x.
+        for (int x = 0; x < m; x++) {
+            dp[0][x] = x;
+            dp[1][x] = m - 1 - x;
+        }
+        
+        // Iterating from length 3 up to n
+        for (int i = 3; i <= n; i++) {
+            long[][] nextDp = new long[2][m];
+            
+            // Compute prefix sums for dp[1] to update nextDp[0]
+            long[] pref = new long[m];
+            long currentSum = 0;
+            for (int x = 0; x < m; x++) {
+                currentSum = (currentSum + dp[1][x]) % MOD;
+                pref[x] = currentSum;
+            }
+            
+            // Compute suffix sums for dp[0] to update nextDp[1]
+            long[] suff = new long[m];
+            currentSum = 0;
+            for (int x = m - 1; x >= 0; x--) {
+                currentSum = (currentSum + dp[0][x]) % MOD;
+                suff[x] = currentSum;
+            }
+            
+            // Update next layer
+            for (int x = 0; x < m; x++) {
+                // nextDp[0][x] requires sum of dp[1][y] for y < x
+                if (x > 0) {
+                    nextDp[0][x] = pref[x - 1];
+                }
+                // nextDp[1][x] requires sum of dp[0][y] for y > x
+                if (x < m - 1) {
+                    nextDp[1][x] = suff[x + 1];
+                }
+            }
+            
+            dp = nextDp;
+        }
+        
+        // Total count is the sum of all possibilities for the final layer
+        long total = 0;
+        for (int x = 0; x < m; x++) {
+            total = (total + dp[0][x] + dp[1][x]) % MOD;
+        }
+        
+        return (int) total;
+    }
+}
