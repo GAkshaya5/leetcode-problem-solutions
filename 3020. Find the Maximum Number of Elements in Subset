@@ -1,0 +1,52 @@
+import java.util.HashMap;
+import java.util.Map;
+
+class Solution {
+    public int maximumLength(int[] nums) {
+        // Step 1: Compute frequencies of each number
+        Map<Long, Integer> countMap = new HashMap<>();
+        for (int num : nums) {
+            countMap.put((long) num, countMap.getOrDefault((long) num, 0) + 1);
+        }
+
+        int maxLen = 0;
+
+        // Step 2: Handle the special edge case for 1
+        if (countMap.containsKey(1L)) {
+            int onesCount = countMap.get(1L);
+            // The chain length must be odd
+            if (onesCount % 2 == 0) {
+                maxLen = onesCount - 1;
+            } else {
+                maxLen = onesCount;
+            }
+        }
+
+        // Step 3: Iterate through each unique number > 1 as a potential starting base
+        for (long x : countMap.keySet()) {
+            if (x == 1) continue;
+
+            int currentLen = 0;
+            long current = x;
+
+            // Build the chain as long as we have at least 2 copies of the current element
+            while (countMap.containsKey(current) && countMap.get(current) >= 2) {
+                currentLen += 2;
+                current = current * current; // Move to the next square
+            }
+
+            // Check if the final peak element exists at least once
+            if (countMap.containsKey(current)) {
+                currentLen += 1;
+            } else {
+                // If the peak doesn't exist, we must back out the last element 
+                // to make the previous available element the peak
+                currentLen -= 1;
+            }
+
+            maxLen = Math.max(maxLen, currentLen);
+        }
+
+        return maxLen;
+    }
+}
