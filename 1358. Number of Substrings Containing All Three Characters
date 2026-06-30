@@ -1,0 +1,21 @@
+class Solution {
+    public int numberOfSubstrings(String s) {
+        // Array to store the last seen index of 'a', 'b', and 'c'
+        int[] lastSeen = {-1, -1, -1};
+        int count = 0;
+        
+        for (int i = 0; i < s.length(); i++) {
+            // Update the last seen index for the current character
+            lastSeen[s.charAt(i) - 'a'] = i;
+            
+            // The number of valid substrings ending at index i is determined
+            // by the minimum index among the three characters.
+            int minIndex = Math.min(lastSeen[0], Math.min(lastSeen[1], lastSeen[2]));
+            
+            // If minIndex is -1, it means we haven't seen all three characters yet, adding 0.
+            count += minIndex + 1;
+        }
+        
+        return count;
+    }
+}
