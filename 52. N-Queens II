@@ -1,0 +1,46 @@
+class Solution {
+    private int count = 0;
+
+    public int totalNQueens(int n) {
+        // Track occupied columns
+        boolean[] cols = new boolean[n];
+        // Track occupied positive diagonals (r + c) -> range: 0 to 2n - 2
+        boolean[] diag1 = new boolean[2 * n];
+        // Track occupied negative diagonals (r - c) -> shifted by +n to avoid negative indices
+        boolean[] diag2 = new boolean[2 * n];
+        
+        backtrack(0, n, cols, diag1, diag2);
+        return count;
+    }
+
+    private void backtrack(int row, int n, boolean[] cols, boolean[] diag1, boolean[] diag2) {
+        // If we successfully placed queens in all rows, we found a valid solution
+        if (row == n) {
+            count++;
+            return;
+        }
+
+        for (int col = 0; col < n; col++) {
+            int d1 = row + col;
+            int d2 = row - col + n;
+
+            // Check if placing a queen here is valid
+            if (cols[col] || diag1[d1] || diag2[d2]) {
+                continue;
+            }
+
+            // Place the queen (set the flags)
+            cols[col] = true;
+            diag1[d1] = true;
+            diag2[d2] = true;
+
+            // Move to the next row
+            backtrack(row + 1, n, cols, diag1, diag2);
+
+            // Backtrack (remove the queen / reset the flags)
+            cols[col] = false;
+            diag1[d1] = false;
+            diag2[d2] = false;
+        }
+    }
+}
