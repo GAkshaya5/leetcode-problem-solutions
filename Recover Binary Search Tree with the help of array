@@ -1,0 +1,31 @@
+class Solution {
+private:
+    TreeNode* first = nullptr;
+    TreeNode* second = nullptr;
+    TreeNode* prev = nullptr;
+
+    void inorder(TreeNode* root) {
+        if (!root) return;
+
+        inorder(root->left);
+
+        // Track the swapped elements
+        if (prev != nullptr && prev->val > root->val) {
+            if (first == nullptr) {
+                first = prev; // First anomaly is the larger node
+            }
+            second = root;    // Second anomaly is the smaller node
+        }
+        prev = root;
+
+        inorder(root->right);
+    }
+
+public:
+    void recoverTree(TreeNode* root) {
+        inorder(root);
+        if (first && second) {
+            std::swap(first->val, second->val);
+        }
+    }
+};
