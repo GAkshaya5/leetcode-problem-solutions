@@ -1,0 +1,55 @@
+#include <vector>
+
+using namespace std;
+
+class Solution {
+private:
+    void dfs(int r, int c, int m, int n, vector<vector<char>>& board) {
+        // Base cases: out of bounds or not an 'O'
+        if (r < 0 || r >= m || c < 0 || c >= n || board[r][c] != 'O') {
+            return;
+        }
+        
+        // Mark as safe/escaped
+        board[r][c] = 'E';
+        
+        // Explore all 4 adjacent directions
+        dfs(r + 1, c, m, n, board);
+        dfs(r - 1, c, m, n, board);
+        dfs(r, c + 1, m, n, board);
+        dfs(r, c - 1, m, n, board);
+    }
+
+public:
+    void solve(vector<vector<char>>& board) {
+        if (board.empty() || board[0].empty()) {
+            return;
+        }
+        
+        int m = board.size();
+        int n = board[0].size();
+        
+        // Step 1: Run DFS from 'O's on the first and last columns
+        for (int r = 0; r < m; ++r) {
+            dfs(r, 0, m, n, board);
+            dfs(r, n - 1, m, n, board);
+        }
+        
+        // Step 2: Run DFS from 'O's on the first and last rows
+        for (int c = 0; c < n; ++c) {
+            dfs(0, c, m, n, board);
+            dfs(m - 1, c, m, n, board);
+        }
+        
+        // Step 3: Flip surrounded 'O' -> 'X', and restore 'E' -> 'O'
+        for (int r = 0; r < m; ++r) {
+            for (int c = 0; c < n; ++c) {
+                if (board[r][c] == 'O') {
+                    board[r][c] = 'X';
+                } else if (board[r][c] == 'E') {
+                    board[r][c] = 'O';
+                }
+            }
+        }
+    }
+};
