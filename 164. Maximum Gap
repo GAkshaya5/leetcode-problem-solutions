@@ -1,0 +1,50 @@
+#include <vector>
+#include <algorithm>
+#include <cmath>
+
+using namespace std;
+
+class Solution {
+public:
+    int maximumGap(vector<int>& nums) {
+        int n = nums.size();
+        if (n < 2) return 0;
+
+        // Find the global minimum and maximum
+        int min_val = *min_element(nums.begin(), nums.end());
+        int max_val = *max_element(nums.begin(), nums.end());
+
+        // If all elements are identical, the max gap is 0
+        if (min_val == max_val) return 0;
+
+        // Calculate bucket size and count
+        int bucket_size = max(1, (max_val - min_val) / (n - 1));
+        int bucket_count = (max_val - min_val) / bucket_size + 1;
+
+        // Buckets to store min and max values
+        vector<int> bucket_min(bucket_count, INT_MAX);
+        vector<int> bucket_max(bucket_count, INT_MIN);
+
+        // Map numbers into buckets
+        for (int num : nums) {
+            int idx = (num - min_val) / bucket_size;
+            bucket_min[idx] = min(bucket_min[idx], num);
+            bucket_max[idx] = max(bucket_max[idx], num);
+        }
+
+        // Calculate the max gap
+        int max_gap = 0;
+        int previous_max = min_val; // Initialize with the absolute minimum
+
+        for (int i = 0; i < bucket_count; ++i) {
+            // Skip empty buckets
+            if (bucket_min[i] == INT_MAX) continue;
+
+            // Gap is measured between the current bucket's min and the previous non-empty bucket's max
+            max_gap = max(max_gap, bucket_min[i] - previous_max);
+            previous_max = bucket_max[i];
+        }
+
+        return max_gap;
+    }
+};
