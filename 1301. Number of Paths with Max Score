@@ -1,0 +1,62 @@
+class Solution {
+public:
+    vector<int> pathsWithMaxScore(vector<string>& board) {
+        int n = board.size();
+        int MOD = 1e9 + 7;
+
+        // dp_score[i][j] stores the max score to reach (i, j) from 'S'
+        // dp_paths[i][j] stores the number of paths to reach (i, j) with that max score
+        vector<vector<int>> dp_score(n, vector<int>(n, -1));
+        vector<vector<int>> dp_paths(n, vector<int>(n, 0));
+
+        // Base case: Start at the bottom-right square 'S'
+        dp_score[n - 1][n - 1] = 0;
+        dp_paths[n - 1][n - 1] = 1;
+
+        // Directions to look from the current cell: Down, Right, Diagonal Down-Right
+        int dirs[3][2] = {{1, 0}, {0, 1}, {1, 1}};
+
+        // Traverse the board backwards from bottom-right to top-left
+        for (int i = n - 1; i >= 0; --i) {
+            for (int j = n - 1; j >= 0; --j) {
+                // Skip the starting point (already initialized) and obstacles
+                if ((i == n - 1 && j == n - 1) || board[i][j] == 'X') {
+                    continue;
+                }
+
+                int max_s = -1;
+                int paths_count = 0;
+
+                // Look at the 3 valid cells we could have come from
+                for (auto& d : dirs) {
+                    int ni = i + d[0];
+                    int nj = j + d[1];
+
+                    // Check bounds and if the destination cell is reachable
+                    if (ni < n && nj < n && dp_score[ni][nj] != -1) {
+                        if (dp_score[ni][nj] > max_s) {
+                            max_s = dp_score[ni][nj];
+                            paths_count = dp_paths[ni][nj];
+                        } else if (dp_score[ni][nj] == max_s) {
+                            paths_count = (paths_count + dp_paths[ni][nj]) % MOD;
+                        }
+                    }
+                }
+
+                // If at least one path reached this cell, update DP tables
+                if (max_s != -1) {
+                    int curr_val = (board[i][j] == 'E') ? 0 : (board[i][j] - '0');
+                    dp_score[i][j] = max_s + curr_val;
+                    dp_paths[i][j] = paths_count;
+                }
+            }
+        }
+
+        // If 'E' at (0,0) is unreachable, return [0, 0]
+        if (dp_score[0][0] == -1) {
+            return {0, 0};
+        }
+
+        return {dp_score[0][0], dp_paths[0][0]};
+    }
+};
