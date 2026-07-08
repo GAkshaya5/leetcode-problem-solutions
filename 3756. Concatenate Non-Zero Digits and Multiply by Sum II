@@ -1,0 +1,90 @@
+#include <vector>
+#include <string>
+
+using namespace std;
+
+class Solution {
+public:
+    vector<int> sumAndMultiply(string s, vector<vector<int>>& queries) {
+        int m = s.length();
+        long long MOD = 1e9 + 7;
+
+        // Extract non-zero digits and track their original indices
+        vector<int> digits;
+        vector<int> orig_idx;
+        for (int i = 0; i < m; i++) {
+            if (s[i] != '0') {
+                digits.push_back(s[i] - '0');
+                orig_idx.push_back(i);
+            }
+        }
+
+        int n = digits.size();
+
+        // Map original positions to the closest non-zero indices in the compressed array
+        vector<int> next_nonzero(m, -1);
+        vector<int> prev_nonzero(m, -1);
+        
+        int ptr = 0;
+        for (int i = 0; i < m; i++) {
+            while (ptr < n && orig_idx[ptr] < i) {
+                ptr++;
+            }
+            if (ptr < n) next_nonzero[i] = ptr;
+        }
+
+        ptr = n - 1;
+        for (int i = m - 1; i >= 0; i--) {
+            while (ptr >= 0 && orig_idx[ptr] > i) {
+                ptr--;
+            }
+            if (ptr >= 0) prev_nonzero[i] = ptr;
+        }
+
+        // Precompute powers of 10 modulo 10^9 + 7
+        vector<long long> pow10(n + 1, 1);
+        for (int i = 1; i <= n; i++) {
+            pow10[i] = (pow10[i - 1] * 10) % MOD;
+        }
+
+        // Precompute prefix values of the concatenated numbers
+        vector<long long> pref_num(n + 1, 0);
+        for (int i = 0; i < n; i++) {
+            pref_num[i + 1] = (pref_num[i] * 10 + digits[i]) % MOD;
+        }
+
+        // Precompute prefix sums of the digits
+        vector<long long> pref_sum(n + 1, 0);
+        for (int i = 0; i < n; i++) {
+            pref_sum[i + 1] = pref_sum[i] + digits[i];
+        }
+
+        // Process each query
+        vector<int> answer;
+        answer.reserve(queries.size());
+
+        for (const auto& q : queries) {
+            int l = q[0], r = q[1];
+            
+            int L = next_nonzero[l];
+            int R = prev_nonzero[r];
+
+            // If there are no non-zero digits in the range [l, r]
+            if (L == -1 || R == -1 || L > R) {
+                answer.push_back(0);
+                continue;
+            }
+
+            // Extract the value of the concatenated non-zero digits in O(1)
+            long long x = (pref_num[R + 1] - (pref_num[L] * pow10[R - L + 1]) % MOD + MOD) % MOD;
+
+            // Extract the sum of the digits in O(1)
+            long long sum = pref_sum[R + 1] - pref_sum[L];
+
+            long long res = (x * (sum % MOD)) % MOD;
+            answer.push_back(res);
+        }
+
+        return answer;
+    }
+};
