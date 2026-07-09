@@ -1,0 +1,24 @@
+class Solution {
+public:
+    vector<bool> pathExistenceQueries(int n, vector<int>& nums, int maxDiff, vector<vector<int>>& queries) {
+        vector<int> component(n, 0);
+        int currentComponent = 0;
+        
+        // Group nodes into connected components
+        for (int i = 1; i < n; ++i) {
+            if (nums[i] - nums[i - 1] > maxDiff) {
+                currentComponent++;
+            }
+            component[i] = currentComponent;
+        }
+        
+        // Process each query in O(1)
+        vector<bool> answer;
+        answer.reserve(queries.size());
+        for (const auto& query : queries) {
+            answer.push_back(component[query[0]] == component[query[1]]);
+        }
+        
+        return answer;
+    }
+};
