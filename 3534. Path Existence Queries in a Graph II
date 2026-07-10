@@ -1,0 +1,116 @@
+import java.util.Arrays;
+
+class Solution {
+    // Helper class to store a node's value and its original index
+    private static class Node implements Comparable<Node> {
+        int value;
+        int origIdx;
+
+        Node(int value, int origIdx) {
+            this.value = value;
+            this.origIdx = origIdx;
+        }
+
+        @Override
+        public int compareTo(Node other) {
+            return Integer.compare(this.value, other.value);
+        }
+    }
+
+    public int[] pathExistenceQueries(int n, int[] nums, int maxDiff, int[][] queries) {
+        // 1. Pair each value with its original index and sort by value
+        Node[] sortedNodes = new Node[n];
+        for (int i = 0; i < n; i++) {
+            sortedNodes[i] = new Node(nums[i], i);
+        }
+        Arrays.sort(sortedNodes);
+
+        // Map original index -> position in the sortedNodes array
+        int[] posInSorted = new int[n];
+        for (int sortedIdx = 0; sortedIdx < n; sortedIdx++) {
+            posInSorted[sortedNodes[sortedIdx].origIdx] = sortedIdx;
+        }
+
+        // 2. Compute the direct step (2^0) for each sorted position.
+        // LOG = 18 is sufficient since n <= 10^5 (2^17 = 131072 > 10^5)
+        int LOG = 18;
+        int[][] up = new int[n][LOG];
+
+        for (int i = 0; i < n; i++) {
+            int maxValAllowed = sortedNodes[i].value + maxDiff;
+            // Find the furthest node to the right within maxDiff via customized binary search
+            int idx = bisectRight(sortedNodes, maxValAllowed) - 1;
+            up[i][0] = idx;
+        }
+
+        // 3. Build the Binary Lifting Table
+        for (int j = 1; j < LOG; j++) {
+            for (int i = 0; i < n; i++) {
+                up[i][j] = up[up[i][j - 1]][j - 1];
+            }
+        }
+
+        // 4. Process Queries
+        int numQueries = queries.length;
+        int[] ans = new int[numQueries];
+
+        for (int q = 0; q < numQueries; q++) {
+            int u = queries[q][0];
+            int v = queries[q][1];
+
+            if (u == v) {
+                ans[q] = 0;
+                continue;
+            }
+
+            int p1 = posInSorted[u];
+            int p2 = posInSorted[v];
+
+            // Ensure p1 is always the smaller value (left side)
+            if (p1 > p2) {
+                int temp = p1;
+                p1 = p2;
+                p2 = temp;
+            }
+
+            // If they are directly reachable within 1 jump
+            if (up[p1][0] >= p2) {
+                ans[q] = 1;
+                continue;
+            }
+
+            int steps = 0;
+            // Lift p1 as far right as possible *without* reaching or passing p2
+            for (int j = LOG - 1; j >= 0; j--) {
+                if (up[p1][j] < p2) {
+                    p1 = up[p1][j];
+                    steps += (1 << j);
+                }
+            }
+
+            // Check if one more final optimal jump bridges the gap to p2
+            if (up[p1][0] >= p2) {
+                ans[q] = steps + 1;
+            } else {
+                ans[q] = -1;
+            }
+        }
+
+        return ans;
+    }
+
+    // Helper method equivalent to Python's bisect.bisect_right
+    private int bisectRight(Node[] nodes, int targetValue) {
+        int low = 0;
+        int high = nodes.length;
+        while (low < high) {
+            int mid = low + (high - low) / 2;
+            if (nodes[mid].value <= targetValue) {
+                low = mid + 1;
+            } else {
+                high = mid;
+            }
+        }
+        return low;
+    }
+}
