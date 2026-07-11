@@ -1,0 +1,57 @@
+import java.util.ArrayList;
+import java.util.List;
+
+class Solution {
+    public int countCompleteComponents(int n, int[][] edges) {
+        // Build the adjacency list and track degrees
+        List<List<Integer>> adj = new ArrayList<>();
+        int[] degree = new int[n];
+        for (int i = 0; i < n; i++) {
+            adj.add(new ArrayList<>());
+        }
+        
+        for (int[] edge : edges) {
+            adj.get(edge[0]).add(edge[1]);
+            adj.get(edge[1]).add(edge[0]);
+            degree[edge[0]]++;
+            degree[edge[1]]++;
+        }
+        
+        boolean[] visited = new boolean[n];
+        int completeComponentsCount = 0;
+        
+        for (int i = 0; i < n; i++) {
+            if (!visited[i]) {
+                List<Integer> componentNodes = new ArrayList<>();
+                // Find all nodes in the current connected component
+                dfs(i, adj, visited, componentNodes);
+                
+                // Check if the component is complete
+                int numNodes = componentNodes.size();
+                boolean isComplete = true;
+                for (int node : componentNodes) {
+                    if (degree[node] != numNodes - 1) {
+                        isComplete = false;
+                        break;
+                    }
+                }
+                
+                if (isComplete) {
+                    completeComponentsCount++;
+                }
+            }
+        }
+        
+        return completeComponentsCount;
+    }
+    
+    private void dfs(int node, List<List<Integer>> adj, boolean[] visited, List<Integer> componentNodes) {
+        visited[node] = true;
+        componentNodes.add(node);
+        for (int neighbor : adj.get(node)) {
+            if (!visited[neighbor]) {
+                dfs(neighbor, adj, visited, componentNodes);
+            }
+        }
+    }
+}
