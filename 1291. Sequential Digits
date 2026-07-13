@@ -1,0 +1,30 @@
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+class Solution {
+    public List<Integer> sequentialDigits(int low, int high) {
+        List<Integer> result = new ArrayList<>();
+        String sample = "123456789";
+        
+        // Determine the length range of the numbers
+        int minLen = String.valueOf(low).length();
+        int maxLen = String.valueOf(high).length();
+        
+        // Iterate through all possible lengths
+        for (int len = minLen; len <= maxLen; len++) {
+            // Slide a window of 'len' across the sample string
+            for (int i = 0; i <= sample.length() - len; i++) {
+                String sub = sample.substring(i, i + len);
+                int val = Integer.parseInt(sub);
+                
+                // Add to result if it falls within the required range
+                if (val >= low && val <= high) {
+                    result.add(val);
+                }
+            }
+        }
+        
+        return result;
+    }
+}
