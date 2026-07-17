@@ -1,0 +1,64 @@
+import java.util.Arrays;
+
+class Solution {
+    public int[] gcdValues(int[] nums, long[] queries) {
+        int maxVal = 0;
+        for (int num : nums) {
+            maxVal = Math.max(maxVal, num);
+        }
+
+        // Step 1: Count frequency of each number
+        int[] freq = new int[maxVal + 1];
+        for (int num : nums) {
+            freq[num]++;
+        }
+
+        // Step 2 & 3: Sieve to count exact pairs for each GCD
+        long[] gcdPairsCount = new long[maxVal + 1];
+        for (int i = maxVal; i >= 1; i--) {
+            long countDivisible = 0;
+            // Count how many numbers in nums are multiples of i
+            for (int j = i; j <= maxVal; j += i) {
+                countDivisible += freq[j];
+            }
+            
+            // Total pairs that have a common divisor i
+            long totalPairs = countDivisible * (countDivisible - 1) / 2;
+            
+            // Subtract pairs that have a strictly greater GCD (multiples of i)
+            for (int j = 2 * i; j <= maxVal; j += i) {
+                totalPairs -= gcdPairsCount[j];
+            }
+            
+            gcdPairsCount[i] = totalPairs;
+        }
+
+        // Step 4: Build prefix sum array of the counts
+        long[] prefixSums = new long[maxVal + 1];
+        for (int i = 1; i <= maxVal; i++) {
+            prefixSums[i] = prefixSums[i - 1] + gcdPairsCount[i];
+        }
+
+        // Step 5: Answer queries using binary search
+        int[] ans = new int[queries.length];
+        for (int i = 0; i < queries.length; i++) {
+            long target = queries[i];
+            
+            // Binary search for the first index where prefixSums[idx] > target
+            int low = 1, high = maxVal;
+            int res = maxVal;
+            while (low <= high) {
+                int mid = low + (high - low) / 2;
+                if (prefixSums[mid] > target) {
+                    res = mid;
+                    high = mid - 1;
+                } else {
+                    low = mid + 1;
+                }
+            }
+            ans[i] = res;
+        }
+
+        return ans;
+    }
+}
