@@ -1,0 +1,45 @@
+class Solution {
+    public int maxActiveSectionsAfterTrade(String s) {
+        int initialOnes = 0;
+        for (char c : s.toCharArray()) {
+            if (c == '1') initialOnes++;
+        }
+
+        // Augment string as described: '1' + s + '1'
+        String t = "1" + s + "1";
+        
+        // Break augmented string into lengths of alternating segments
+        // Grouping consecutive identical characters
+        java.util.List<Integer> groupLengths = new java.util.ArrayList<>();
+        java.util.List<Character> groupTypes = new java.util.ArrayList<>();
+
+        int n = t.length();
+        int i = 0;
+        while (i < n) {
+            char ch = t.charAt(i);
+            int j = i;
+            while (j < n && t.charAt(j) == ch) {
+                j++;
+            }
+            groupLengths.add(j - i);
+            groupTypes.add(ch);
+            i = j;
+        }
+
+        int maxDelta = 0;
+
+        // Look for pattern: '0'-block, '1'-block, '0'-block
+        for (int k = 1; k < groupTypes.size() - 1; k++) {
+            if (groupTypes.get(k) == '1' && groupTypes.get(k - 1) == '0' && groupTypes.get(k + 1) == '0') {
+                int leftZeroLen = groupLengths.get(k - 1);
+                int rightZeroLen = groupLengths.get(k + 1);
+                
+                // Net change in 1s = (zeros added) - (ones removed)
+                int delta = leftZeroLen + rightZeroLen;
+                maxDelta = Math.max(maxDelta, delta);
+            }
+        }
+
+        return initialOnes + maxDelta;
+    }
+}
