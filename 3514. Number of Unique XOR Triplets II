@@ -1,0 +1,39 @@
+#include <vector>
+#include <unordered_set>
+#include <algorithm>
+
+class Solution {
+public:
+    int uniqueXorTriplets(std::vector<int>& nums) {
+        int n = nums.size();
+        
+        // 1. Find all possible unique XOR values of pairs (i, j) where i <= j
+        // Max value in nums is 1500, so max possible XOR value < 2048
+        std::vector<bool> pairXor(2048, false);
+        for (int i = 0; i < n; ++i) {
+            for (int j = i; j < n; ++j) {
+                pairXor[nums[i] ^ nums[j]] = true;
+            }
+        }
+        
+        // 2. Combine pair XOR values with the third element nums[k]
+        std::vector<bool> tripletXor(2048, false);
+        for (int k = 0; k < n; ++k) {
+            for (int x = 0; x < 2048; ++x) {
+                if (pairXor[x]) {
+                    tripletXor[x ^ nums[k]] = true;
+                }
+            }
+        }
+        
+        // 3. Count unique triplet XOR results
+        int uniqueCount = 0;
+        for (int val = 0; val < 2048; ++val) {
+            if (tripletXor[val]) {
+                uniqueCount++;
+            }
+        }
+        
+        return uniqueCount;
+    }
+};
