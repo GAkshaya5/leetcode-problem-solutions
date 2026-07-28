@@ -1,0 +1,13 @@
+class Solution:
+    def smallestPalindrome(self, s: str) -> str:
+        n = len(s)
+        
+        # Extract and sort the first half of the string
+        half = sorted(s[:n // 2])
+        left = "".join(half)
+        
+        # Middle element for odd length string
+        mid = s[n // 2] if n % 2 != 0 else ""
+        
+        # Combine left half, middle element, and reversed left half
+        return left + mid + left[::-1]
