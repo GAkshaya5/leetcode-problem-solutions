@@ -1,0 +1,21 @@
+class Solution:
+    def minimumPushes(self, word: str) -> int:
+        n = len(word)
+        pushes = 0
+        
+        # 1st push for up to 8 characters
+        pushes += min(n, 8) * 1
+        
+        # 2nd push for up to 8 characters (index 8 to 15)
+        if n > 8:
+            pushes += min(n - 8, 8) * 2
+            
+        # 3rd push for up to 8 characters (index 16 to 23)
+        if n > 16:
+            pushes += min(n - 16, 8) * 3
+            
+        # 4th push for remaining characters (index 24 to 25)
+        if n > 24:
+            pushes += (n - 24) * 4
+            
+        return pushes
