@@ -1,0 +1,27 @@
+class Solution:
+    def stoneGameIII(self, stoneValue: list[int]) -> str:
+        n = len(stoneValue)
+        # dp[i] stores the max score difference from index i to the end.
+        # dp[n], dp[n+1], dp[n+2] are 0 since no stones remain beyond index n.
+        dp = [0] * 4
+
+        for i in range(n - 1, -1, -1):
+            take = 0
+            max_diff = float('-inf')
+
+            # Try taking 1, 2, or 3 stones
+            for k in range(3):
+                if i + k < n:
+                    take += stoneValue[i + k]
+                    max_diff = max(max_diff, take - dp[(i + k + 1) % 4])
+
+            dp[i % 4] = max_diff
+
+        diff = dp[0]
+
+        if diff > 0:
+            return "Alice"
+        elif diff < 0:
+            return "Bob"
+        else:
+            return "Tie"
