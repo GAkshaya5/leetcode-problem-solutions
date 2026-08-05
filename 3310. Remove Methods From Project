@@ -1,0 +1,46 @@
+#include <vector>
+#include <numeric>
+
+class Solution {
+    void dfs(const vector<vector<int>>& con, int x, vector<bool>& mark) {
+        if (mark[x]) return;
+        mark[x] = true;
+        for (int y : con[x]) {
+            dfs(con, y, mark);
+        }
+    }
+
+public:
+    vector<int> remainingMethods(int n, int k, vector<vector<int>>& invocations) {
+        // 1. Build adjacency list
+        vector<vector<int>> con(n);
+        for (const auto& inv : invocations) {
+            con[inv[0]].push_back(inv[1]);
+        }
+
+        // 2. Mark all reachable methods from k as suspicious
+        vector<bool> is_suspicious(n, false);
+        dfs(con, k, is_suspicious);
+
+        // 3. Check if any non-suspicious method calls a suspicious method
+        for (const auto& inv : invocations) {
+            int u = inv[0];
+            int v = inv[1];
+            if (!is_suspicious[u] && is_suspicious[v]) {
+                // Outside call detected: cannot remove any method
+                vector<int> all_methods(n);
+                std::iota(all_methods.begin(), all_methods.end(), 0);
+                return all_methods;
+            }
+        }
+
+        // 4. Collect remaining non-suspicious methods
+        vector<int> ans;
+        for (int i = 0; i < n; ++i) {
+            if (!is_suspicious[i]) {
+                ans.push_back(i);
+            }
+        }
+        return ans;
+    }
+};
