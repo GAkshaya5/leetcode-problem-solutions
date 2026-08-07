@@ -1,0 +1,108 @@
+class Solution {
+    int count(long long &t, int x) {
+        if (t < 2) return 0;
+        int r = 0;
+        for (; t % x == 0; t /= x, ++r)
+        ;
+        return r;
+    }
+    
+    string change(const string &s) {
+        string r = s;
+        for (char& c : r) {
+            if (c == '0') {
+                c = '1';
+            }
+        }
+        return r;
+    }
+    
+    vector<int> make(const vector<int> &p) {
+        vector<int> v(10);
+        v[2] = max(p[2], 0);
+        v[3] = max(p[3], 0);
+        v[5] = max(p[5], 0);
+        v[7] = max(p[7], 0);
+        v[9] = v[3] >> 1;
+        v[3] &= 1;
+        v[8] = v[2] / 3;
+        v[2] %= 3;
+        v[6] = min(v[2], v[3]);
+        v[2] -= v[6];
+        v[3] -= v[6];
+        v[4] = v[2] >> 1;
+        v[2] &= 1;
+        return v;
+    }
+    
+    string join(const vector<int> &v) {
+        string r;
+        for (int i = 1; i < 10; ++i) {
+            for (int j = 0; j < v[i]; ++j) {
+                r.push_back(i + '0');
+            }
+        }
+        return r;
+    }
+public:
+    string smallestNumber(string num, long long t) {
+        const long long tt = t;
+        vector<int> p(10);
+        p[2] = count(t, 2);
+        p[3] = count(t, 3);
+        p[5] = count(t, 5);
+        p[7] = count(t, 7);
+        if (t > 1) return "-1";
+        long long s = 1;
+        const int n = num.length();
+        int z = n;
+        for (int i = 0; i < n; ++i) {
+            long long x = num[i] - '0';
+            if (x) {
+                s = s * x % tt;
+            }
+            if (z == n) {
+                if (x == 0) {
+                    z = i;
+                }
+                p[2] -= count(x, 2);
+                p[3] -= count(x, 3);
+                p[5] -= count(x, 5);
+                p[7] -= count(x, 7);
+            }
+        }
+        if (z == n && s == 0) return num;
+        for (int i = z == n ? (n - 1) : z; i >= 0; --i) {
+            int x = num[i] - '0';
+            t = x;
+            p[2] += count(t, 2);
+            p[3] += count(t, 3);
+            p[5] += count(t, 5);
+            p[7] += count(t, 7);
+            for (++x; x < 10; ++x) {
+                t = x;
+                p[2] -= count(t, 2);
+                p[3] -= count(t, 3);
+                p[5] -= count(t, 5);
+                p[7] -= count(t, 7);
+                vector<int> v = make(p);
+                v[1] = n - 1 - i;
+                for (int j = 2; j < 10 && v[1] >= 0; v[1] -= v[j++])
+                ;
+                if (v[1] >= 0) return change(num.substr(0, i)) + to_string(x) + join(v);
+                t = x;
+                p[2] += count(t, 2);
+                p[3] += count(t, 3);
+                p[5] += count(t, 5);
+                p[7] += count(t, 7);
+            }
+        }
+        vector<int> v = make(p);
+        v[1] = n + 1;
+        for (int i = 2; v[1] >= 0 && i < 10; v[1] -= v[i++])
+        ;
+        v[1] = max(0, v[1]);
+        return join(v);
+        
+    }
+};
