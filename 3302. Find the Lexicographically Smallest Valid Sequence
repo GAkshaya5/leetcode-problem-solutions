@@ -1,0 +1,56 @@
+#include <vector>
+#include <string>
+
+using namespace std;
+
+class Solution {
+public:
+    vector<int> validSequence(string word1, string word2) {
+        int n = word1.size();
+        int m = word2.size();
+        
+        // last[j] stores the maximum index in word1 that can complete word2[j...m-1]
+        vector<int> last(m, -1);
+        int ptr = n - 1;
+        for (int j = m - 1; j >= 0; --j) {
+            while (ptr >= 0 && word1[ptr] != word2[j]) {
+                ptr--;
+            }
+            if (ptr < 0) break;
+            last[j] = ptr;
+            ptr--;
+        }
+
+        vector<int> ans;
+        bool used_mismatch = false;
+        ptr = 0;
+
+        for (int j = 0; j < m; ++j) {
+            while (ptr < n) {
+                // Case 1: Exact match
+                if (word1[ptr] == word2[j]) {
+                    ans.push_back(ptr);
+                    ptr++;
+                    break;
+                }
+                
+                // Case 2: Mismatch (only if mismatch not used yet and remaining suffix is feasible)
+                if (!used_mismatch && (j == m - 1 || last[j + 1] > ptr)) {
+                    ans.push_back(ptr);
+                    used_mismatch = true;
+                    ptr++;
+                    break;
+                }
+
+                ptr++;
+            }
+
+            // If we could not place word2[j], no valid sequence exists
+            if (ans.size() != j + 1) {
+                return {};
+            }
+        }
+
+        return ans;
+    }
+};
