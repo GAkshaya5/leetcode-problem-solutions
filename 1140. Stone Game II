@@ -1,0 +1,38 @@
+#include <vector>
+#include <algorithm>
+#include <numeric>
+
+using namespace std;
+
+class Solution {
+    int memo[101][101];
+    vector<int> suffixSum;
+
+    int solve(int i, int M, int n) {
+        if (i >= n) return 0;
+        if (i + 2 * M >= n) return suffixSum[i]; // Can take all remaining piles
+        if (memo[i][M] != -1) return memo[i][M];
+
+        int maxStones = 0;
+        for (int X = 1; X <= 2 * M; ++X) {
+            int nextM = max(M, X);
+            int opponentStones = solve(i + X, nextM, n);
+            maxStones = max(maxStones, suffixSum[i] - opponentStones);
+        }
+
+        return memo[i][M] = maxStones;
+    }
+
+public:
+    int stoneGameII(vector<int>& piles) {
+        int n = piles.size();
+        suffixSum.assign(n + 1, 0);
+        
+        for (int i = n - 1; i >= 0; --i) {
+            suffixSum[i] = suffixSum[i + 1] + piles[i];
+        }
+
+        memset(memo, -1, sizeof(memo));
+        return solve(0, 1, n);
+    }
+};
