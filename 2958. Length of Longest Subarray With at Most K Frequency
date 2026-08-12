@@ -1,0 +1,27 @@
+#include <vector>
+#include <unordered_map>
+#include <algorithm>
+
+class Solution {
+public:
+    int maxSubarrayLength(std::vector<int>& nums, int k) {
+        std::unordered_map<int, int> count;
+        int left = 0;
+        int max_length = 0;
+
+        for (int right = 0; right < nums.size(); ++right) {
+            count[nums[right]]++;
+
+            // Shrink the window from the left if the current number's frequency exceeds k
+            while (count[nums[right]] > k) {
+                count[nums[left]]--;
+                left++;
+            }
+
+            // Update maximum valid subarray length
+            max_length = std::max(max_length, right - left + 1);
+        }
+
+        return max_length;
+    }
+};
