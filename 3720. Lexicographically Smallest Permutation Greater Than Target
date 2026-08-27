@@ -1,0 +1,61 @@
+#include <string>
+#include <vector>
+#include <algorithm>
+
+using namespace std;
+
+class Solution {
+public:
+    string lexGreaterPermutation(string s, string target) {
+        int n = s.length();
+        vector<int> origCount(26, 0);
+        for (char c : s) {
+            origCount[c - 'a']++;
+        }
+
+        // Try prefix match length L from n-1 down to 0
+        for (int L = n - 1; L >= 0; --L) {
+            vector<int> count = origCount;
+            bool possible = true;
+
+            // Consume target[0...L-1]
+            for (int i = 0; i < L; ++i) {
+                int idx = target[i] - 'a';
+                if (count[idx] <= 0) {
+                    possible = false;
+                    break;
+                }
+                count[idx]--;
+            }
+
+            if (!possible) continue;
+
+            // Find smallest character c > target[L]
+            int targetCharIdx = target[L] - 'a';
+            int pick = -1;
+            for (int c = targetCharIdx + 1; c < 26; ++c) {
+                if (count[c] > 0) {
+                    pick = c;
+                    break;
+                }
+            }
+
+            // If a valid character is found, build the result string
+            if (pick != -1) {
+                string res = target.substr(0, L);
+                res += (char)('a' + pick);
+                count[pick]--;
+
+                for (int c = 0; c < 26; ++c) {
+                    while (count[c] > 0) {
+                        res += (char)('a' + c);
+                        count[c]--;
+                    }
+                }
+                return res;
+            }
+        }
+
+        return "";
+    }
+};
