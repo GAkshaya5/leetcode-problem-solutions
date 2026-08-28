@@ -1,0 +1,103 @@
+#include <string>
+#include <vector>
+#include <algorithm>
+
+using namespace std;
+
+class Solution {
+public:
+    string lexPalindromicPermutation(string s, string target) {
+        int n = s.length();
+        vector<int> count(26, 0);
+        for (char c : s) {
+            count[c - 'a']++;
+        }
+
+        // Validate if a palindrome permutation is possible
+        int odd_count = 0;
+        char mid_char = 0;
+        for (int i = 0; i < 26; ++i) {
+            if (count[i] % 2 != 0) {
+                odd_count++;
+                mid_char = 'a' + i;
+            }
+        }
+
+        if ((n % 2 == 0 && odd_count > 0) || (n % 2 != 0 && odd_count != 1)) {
+            return "";
+        }
+
+        int half_len = n / 2;
+        vector<int> half_count(26, 0);
+        for (int i = 0; i < 26; ++i) {
+            half_count[i] = count[i] / 2;
+        }
+
+        // Helper to construct full palindrome from half string
+        auto make_palindrome = [&](const string& half) {
+            string full = half;
+            if (n % 2 != 0) {
+                full += mid_char;
+            }
+            string rev = half;
+            reverse(rev.begin(), rev.end());
+            full += rev;
+            return full;
+        };
+
+        // Try matching target prefix of length L (from half_len down to 0)
+        for (int L = half_len; L >= 0; --L) {
+            vector<int> current_counts = half_count;
+            string prefix = "";
+            bool possible = true;
+
+            for (int i = 0; i < L; ++i) {
+                int idx = target[i] - 'a';
+                if (current_counts[idx] > 0) {
+                    prefix += target[i];
+                    current_counts[idx]--;
+                } else {
+                    possible = false;
+                    break;
+                }
+            }
+
+            if (!possible) continue;
+
+            // Try placing a character greater than target[L] at position L
+            int start_char = (L < half_len) ? (target[L] - 'a' + 1) : 0;
+            if (L == half_len) {
+                // If prefix of length half_len matches, check if full palindrome exceeds target
+                string candidate = make_palindrome(prefix);
+                if (candidate > target) {
+                    return candidate;
+                }
+                continue;
+            }
+
+            for (int c = start_char; c < 26; ++c) {
+                if (current_counts[c] > 0) {
+                    string half = prefix;
+                    half += (char)('a' + c);
+                    vector<int> rem_counts = current_counts;
+                    rem_counts[c]--;
+
+                    // Fill remaining half greedily with smallest available characters
+                    for (int i = 0; i < 26; ++i) {
+                        while (rem_counts[i] > 0) {
+                            half += (char)('a' + i);
+                            rem_counts[i]--;
+                        }
+                    }
+
+                    string candidate = make_palindrome(half);
+                    if (candidate > target) {
+                        return candidate;
+                    }
+                }
+            }
+        }
+
+        return "";
+    }
+};
