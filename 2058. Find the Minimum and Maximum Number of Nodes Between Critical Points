@@ -1,0 +1,47 @@
+class Solution {
+public:
+    vector<int> nodesBetweenCriticalPoints(ListNode* head) {
+        // A critical point needs both a previous and next node, 
+        // so we need at least 3 nodes to have any critical points.
+        if (!head || !head->next || !head->next->next) {
+            return {-1, -1};
+        }
+
+        int firstCP = -1;
+        int prevCP = -1;
+        int minDistance = INT_MAX;
+        
+        ListNode* prev = head;
+        ListNode* curr = head->next;
+        int position = 1; // 0-indexed position of curr node
+
+        while (curr->next != nullptr) {
+            ListNode* nextNode = curr->next;
+            
+            // Check if current node is a local maxima or local minima
+            bool isMaxima = (curr->val > prev->val) && (curr->val > nextNode->val);
+            bool isMinima = (curr->val < prev->val) && (curr->val < nextNode->val);
+
+            if (isMaxima || isMinima) {
+                if (firstCP == -1) {
+                    firstCP = position;
+                } else {
+                    minDistance = min(minDistance, position - prevCP);
+                }
+                prevCP = position;
+            }
+
+            prev = curr;
+            curr = curr->next;
+            position++;
+        }
+
+        // If fewer than 2 critical points were found
+        if (minDistance == INT_MAX) {
+            return {-1, -1};
+        }
+
+        int maxDistance = prevCP - firstCP;
+        return {minDistance, maxDistance};
+    }
+};
