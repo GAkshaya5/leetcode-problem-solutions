@@ -1,0 +1,27 @@
+#include <vector>
+#include <algorithm>
+#include <climits>
+
+class Solution {
+public:
+    bool uniformArray(std::vector<int>& nums1) {
+        int minOdd = INT_MAX;
+        int minEven = INT_MAX;
+
+        for (int x : nums1) {
+            if (x % 2 != 0) {
+                minOdd = std::min(minOdd, x);
+            } else {
+                minEven = std::min(minEven, x);
+            }
+        }
+
+        // 1. If there are no odd numbers, all are already even -> true
+        if (minOdd == INT_MAX) {
+            return true;
+        }
+
+        // 2. Can make all odd if the smallest odd is smaller than the smallest even
+        return minOdd < minEven;
+    }
+};
