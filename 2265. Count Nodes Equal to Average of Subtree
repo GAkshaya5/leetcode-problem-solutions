@@ -1,0 +1,28 @@
+class Solution {
+private:
+    int matchingNodeCount = 0;
+
+    // Helper returns {subtree_sum, subtree_count}
+    pair<int, int> postOrder(TreeNode* root) {
+        if (!root) return {0, 0};
+
+        auto [leftSum, leftCount] = postOrder(root->left);
+        auto [rightSum, rightCount] = postOrder(root->right);
+
+        int totalSum = leftSum + rightSum + root->val;
+        int totalCount = leftCount + rightCount + 1;
+
+        if (totalSum / totalCount == root->val) {
+            matchingNodeCount++;
+        }
+
+        return {totalSum, totalCount};
+    }
+
+public:
+    int averageOfSubtree(TreeNode* root) {
+        matchingNodeCount = 0;
+        postOrder(root);
+        return matchingNodeCount;
+    }
+};
