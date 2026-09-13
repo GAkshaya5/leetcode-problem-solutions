@@ -1,0 +1,32 @@
+#include <vector>
+#include <unordered_map>
+#include <map>
+#include <algorithm>
+
+class Solution {
+public:
+    int largestOverlap(std::vector<std::vector<int>>& img1, std::vector<std::vector<int>>& img2) {
+        int n = img1.size();
+        std::vector<std::pair<int, int>> p1, p2;
+
+        for (int r = 0; r < n; ++r) {
+            for (int c = 0; c < n; ++c) {
+                if (img1[r][c] == 1) p1.push_back({r, c});
+                if (img2[r][c] == 1) p2.push_back({r, c});
+            }
+        }
+
+        std::map<std::pair<int, int>, int> count;
+        int maxOverlap = 0;
+
+        for (auto& a : p1) {
+            for (auto& b : p2) {
+                std::pair<int, int> vec = {b.first - a.first, b.second - a.second};
+                count[vec]++;
+                maxOverlap = std::max(maxOverlap, count[vec]);
+            }
+        }
+
+        return maxOverlap;
+    }
+};
