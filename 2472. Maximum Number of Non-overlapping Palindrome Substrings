@@ -1,0 +1,29 @@
+class Solution {
+public:
+    int maxPalindromes(string s, int k) {
+        int n = s.length();
+        int count = 0;
+        int lastEnd = -1; // End index of the last selected non-overlapping palindrome
+
+        for (int center = 0; center < 2 * n - 1; ++center) {
+            int left = center / 2;
+            int right = left + (center % 2);
+
+            while (left >= 0 && right < n && s[left] == s[right]) {
+                // Check if current palindrome length is at least k
+                if (right - left + 1 >= k) {
+                    // Check if it overlaps with the previously chosen palindrome
+                    if (left > lastEnd) {
+                        count++;
+                        lastEnd = right; // Greedily select the shortest valid palindrome
+                    }
+                    break; // Move to the next center once a minimal valid palindrome is found
+                }
+                left--;
+                right++;
+            }
+        }
+
+        return count;
+    }
+};
