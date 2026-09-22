@@ -1,0 +1,112 @@
+#include <vector>
+#include <algorithm>
+
+using namespace std;
+
+struct Node {
+    int prod = 1;
+    int count[5] = {0};
+};
+
+class SegmentTree {
+    int n, k;
+    vector<Node> tree;
+
+    // Fast in-place merge into target node
+    inline void merge(const Node& left, const Node& right, Node& res) {
+        res.prod = (left.prod * right.prod) % k;
+
+        // Copy counts from left child
+        for (int i = 0; i < k; ++i) {
+            res.count[i] = left.count[i];
+        }
+
+        // Combine left product with right counts
+        for (int i = 0; i < k; ++i) {
+            if (right.count[i] > 0) {
+                int new_rem = (left.prod * i) % k;
+                res.count[new_rem] += right.count[i];
+            }
+        }
+    }
+
+    void build(const vector<int>& nums, int node, int start, int end) {
+        if (start == end) {
+            int val = nums[start] % k;
+            tree[node].prod = val;
+            tree[node].count[val] = 1;
+            return;
+        }
+        int mid = start + (end - start) / 2;
+        build(nums, 2 * node, start, mid);
+        build(nums, 2 * node + 1, mid + 1, end);
+        merge(tree[2 * node], tree[2 * node + 1], tree[node]);
+    }
+
+    void update(int node, int start, int end, int idx, int val) {
+        if (start == end) {
+            int rem = val % k;
+            tree[node].prod = rem;
+            for (int i = 0; i < k; ++i) tree[node].count[i] = 0;
+            tree[node].count[rem] = 1;
+            return;
+        }
+        int mid = start + (end - start) / 2;
+        if (idx <= mid) {
+            update(2 * node, start, mid, idx, val);
+        } else {
+            update(2 * node + 1, mid + 1, end, idx, val);
+        }
+        merge(tree[2 * node], tree[2 * node + 1], tree[node]);
+    }
+
+    Node query(int node, int start, int end, int l, int r) {
+        if (l <= start && end <= r) return tree[node];
+
+        int mid = start + (end - start) / 2;
+        if (r <= mid) return query(2 * node, start, mid, l, r);
+        if (l > mid) return query(2 * node + 1, mid + 1, end, l, r);
+
+        Node leftRes = query(2 * node, start, mid, l, r);
+        Node rightRes = query(2 * node + 1, mid + 1, end, l, r);
+        Node res;
+        merge(leftRes, rightRes, res);
+        return res;
+    }
+
+public:
+    SegmentTree(const vector<int>& nums, int k) : k(k) {
+        n = nums.size();
+        tree.resize(4 * n);
+        build(nums, 1, 0, n - 1);
+    }
+
+    void update(int idx, int val) {
+        update(1, 0, n - 1, idx, val);
+    }
+
+    int queryX(int start, int targetX) {
+        Node res = query(1, 0, n - 1, start, n - 1);
+        return res.count[targetX];
+    }
+};
+
+class Solution {
+public:
+    vector<int> resultArray(vector<int>& nums, int k, vector<vector<int>>& queries) {
+        // Fast I/O
+        ios_base::sync_with_stdio(false);
+        cin.tie(NULL);
+
+        SegmentTree st(nums, k);
+        vector<int> result;
+        result.reserve(queries.size());
+
+        for (const auto& q : queries) {
+            st.update(q[0], q[1]);
+            result.push_back(st.queryX(q[2], q[3]));
+        }
+
+        return result;
+    }
+};
