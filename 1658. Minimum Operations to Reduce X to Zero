@@ -1,0 +1,91 @@
+#include <vector>
+#include <numeric>
+#include <algorithm>
+
+class Solution {
+public:
+    int minOperations(std::vector<int>& nums, int x) {
+        int totalSum = 0;
+        for (int num : nums) {
+            totalSum += num;
+        }
+
+        int target = totalSum - x;
+
+        // If target is 0, we need to take all elements.
+        if (target == 0) {
+            return nums.size();
+        }
+
+        // If total sum is less than x, it's impossible.
+        if (target < 0) {
+            return -1;
+        }
+
+        int currentSum = 0;
+        int maxLen = -1;
+        int left = 0;
+
+        for (int right = 0; right < nums.size(); ++right) {
+            currentSum += nums[right];
+
+            // Shrink the window from left if current sum exceeds target
+            while (currentSum > target && left <= right) {
+                currentSum -= nums[left];
+                left++;
+            }
+
+            // Update maxLen if we find a valid window sum
+            if (currentSum == target) {
+                maxLen = std::max(maxLen, right - left + 1);
+            }
+        }
+
+        return maxLen == -1 ? -1 : nums.size() - maxLen;
+    }
+};#include <vector>
+#include <numeric>
+#include <algorithm>
+
+class Solution {
+public:
+    int minOperations(std::vector<int>& nums, int x) {
+        int totalSum = 0;
+        for (int num : nums) {
+            totalSum += num;
+        }
+
+        int target = totalSum - x;
+
+        // If target is 0, we need to take all elements.
+        if (target == 0) {
+            return nums.size();
+        }
+
+        // If total sum is less than x, it's impossible.
+        if (target < 0) {
+            return -1;
+        }
+
+        int currentSum = 0;
+        int maxLen = -1;
+        int left = 0;
+
+        for (int right = 0; right < nums.size(); ++right) {
+            currentSum += nums[right];
+
+            // Shrink the window from left if current sum exceeds target
+            while (currentSum > target && left <= right) {
+                currentSum -= nums[left];
+                left++;
+            }
+
+            // Update maxLen if we find a valid window sum
+            if (currentSum == target) {
+                maxLen = std::max(maxLen, right - left + 1);
+            }
+        }
+
+        return maxLen == -1 ? -1 : nums.size() - maxLen;
+    }
+};
