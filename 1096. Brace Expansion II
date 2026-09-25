@@ -1,0 +1,65 @@
+#include <vector>
+#include <string>
+#include <set>
+#include <stack>
+#include <algorithm>
+
+using namespace std;
+
+class Solution {
+public:
+    vector<string> braceExpansionII(string expression) {
+        stack<pair<vector<string>, vector<string>>> stk;
+        vector<string> res;
+        vector<string> cur = {""};
+        
+        for (int i = 0; i < expression.length(); ++i) {
+            char ch = expression[i];
+            
+            if (ch == '{') {
+                // Save current state and reset
+                stk.push({res, cur});
+                res.clear();
+                cur = {""};
+            } 
+            else if (ch == '}') {
+                // Combine current level result into a set
+                set<string> unionSet(res.begin(), res.end());
+                unionSet.insert(cur.begin(), cur.end());
+                
+                // Pop outer level state
+                auto [prevRes, prevCur] = stk.top();
+                stk.pop();
+                
+                // Perform Cartesian product of prevCur and unionSet
+                vector<string> nextCur;
+                for (const string& p : prevCur) {
+                    for (const string& s : unionSet) {
+                        nextCur.push_back(p + s);
+                    }
+                }
+                res = prevRes;
+                cur = nextCur;
+            } 
+            else if (ch == ',') {
+                // Flush cur to res and reset cur
+                res.insert(res.end(), cur.begin(), cur.end());
+                cur = {""};
+            } 
+            else { // Lowercase English letter
+                string letter(1, ch);
+                vector<string> nextCur;
+                for (const string& s : cur) {
+                    nextCur.push_back(s + letter);
+                }
+                cur = nextCur;
+            }
+        }
+        
+        // Final union and unique sorting
+        set<string> finalSet(res.begin(), res.end());
+        finalSet.insert(cur.begin(), cur.end());
+        
+        return vector<string>(finalSet.begin(), finalSet.end());
+    }
+};
