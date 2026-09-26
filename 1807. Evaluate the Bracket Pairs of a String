@@ -1,0 +1,45 @@
+#include <string>
+#include <vector>
+#include <unordered_map>
+
+using namespace std;
+
+class Solution {
+public:
+    string evaluate(string s, vector<vector<string>>& knowledge) {
+        // Step 1: Store knowledge array in a hash map for O(1) lookup
+        unordered_map<string, string> dict;
+        for (const auto& pair : knowledge) {
+            dict[pair[0]] = pair[1];
+        }
+
+        string result = "";
+        string key = "";
+        bool inBracket = false;
+
+        // Step 2: Traverse through string s
+        for (char c : s) {
+            if (c == '(') {
+                inBracket = true;
+                key = "";
+            } else if (c == ')') {
+                inBracket = false;
+                // Check if key exists in dictionary
+                auto it = dict.find(key);
+                if (it != dict.end()) {
+                    result += it->second;
+                } else {
+                    result += '?';
+                }
+            } else {
+                if (inBracket) {
+                    key += c;
+                } else {
+                    result += c;
+                }
+            }
+        }
+
+        return result;
+    }
+};
