@@ -1,0 +1,51 @@
+class Solution {
+private:
+    int m, n;
+    int memo[100][100][101];
+
+    bool solve(int r, int c, int open, vector<vector<char>>& grid) {
+        // Update open count based on current cell
+        open += (grid[r][c] == '(' ? 1 : -1);
+
+        // Balance can never be negative
+        if (open < 0) return false;
+
+        // Balance can't exceed remaining steps needed to reach the end
+        if (open > (m - r + n - c - 1)) return false;
+
+        // Base case: reached bottom-right cell
+        if (r == m - 1 && c == n - 1) {
+            return open == 0;
+        }
+
+        if (memo[r][c][open] != -1) {
+            return memo[r][c][open];
+        }
+
+        bool hasPath = false;
+        // Move Down
+        if (r + 1 < m) {
+            hasPath = hasPath || solve(r + 1, c, open, grid);
+        }
+        // Move Right
+        if (!hasPath && c + 1 < n) {
+            hasPath = hasPath || solve(r, c + 1, open, grid);
+        }
+
+        return memo[r][c][open] = hasPath;
+    }
+
+public:
+    bool hasValidPath(vector<vector<char>>& grid) {
+        m = grid.size();
+        n = grid[0].size();
+
+        // Parity check: Total path length must be even
+        if ((m + n - 1) % 2 != 0) return false;
+        // Boundary checks for start and end brackets
+        if (grid[0][0] == ')' || grid[m - 1][n - 1] == '(') return false;
+
+        memset(memo, -1, sizeof(memo));
+        return solve(0, 0, 0, grid);
+    }
+};
