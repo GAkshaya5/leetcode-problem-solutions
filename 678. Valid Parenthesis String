@@ -1,0 +1,25 @@
+class Solution {
+public:
+    bool checkValidString(string s) {
+        int low = 0;   // Minimum open brackets possible
+        int high = 0;  // Maximum open brackets possible
+
+        for (char c : s) {
+            if (c == '(') {
+                low++;
+                high++;
+            } else if (c == ')') {
+                low--;
+                high--;
+            } else { // c == '*'
+                low--;   // treat '*' as ')'
+                high++;  // treat '*' as '('
+            }
+
+            if (high < 0) return false; // Too many ')'
+            if (low < 0) low = 0;       // Cannot have negative open brackets
+        }
+
+        return low == 0;
+    }
+};
