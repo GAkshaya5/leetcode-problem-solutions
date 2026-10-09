@@ -1,0 +1,21 @@
+class Solution:
+    def minInsertions(self, s: str) -> int:
+        insertions = 0
+        open_needed = 0
+
+        for char in s:
+            if char == '(':
+                # If we need an odd number of ')', we must insert a ')' 
+                # to complete the previous pair before starting a new '('
+                if open_needed % 2 != 0:
+                    insertions += 1
+                    open_needed -= 1
+                open_needed += 2
+            else:  # char == ')'
+                open_needed -= 1
+                # If open_needed drops below 0, we found an unmatched ')'
+                if open_needed == -1:
+                    insertions += 1  # Insert '('
+                    open_needed += 2 # '(' needs 2 ')', minus current ')' = 1 needed
+
+        return insertions + open_needed
