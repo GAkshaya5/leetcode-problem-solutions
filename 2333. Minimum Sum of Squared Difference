@@ -1,0 +1,46 @@
+from collections import Counter
+
+class Solution:
+    def minSumSquareDiff(self, nums1: list[int], nums2: list[int], k1: int, k2: int) -> int:
+        n = len(nums1)
+        total_k = k1 + k2
+        
+        # Step 1: Calculate initial absolute differences and their frequencies
+        diff_counts = Counter(abs(nums1[i] - nums2[i]) for i in range(n))
+        
+        # Find the maximum difference to start our greedy downward sweep
+        max_diff = max(diff_counts.keys())
+        
+        # Step 2: Greedily reduce the largest differences
+        curr_diff = max_diff
+        while curr_diff > 0 and total_k > 0:
+            count = diff_counts[curr_diff]
+            if count == 0:
+                curr_diff -= 1
+                continue
+            
+            # We want to reduce these `count` elements down to `curr_diff - 1`
+            # How many operations can we afford at this level?
+            ops_needed = count
+            if total_k >= ops_needed:
+                # We can reduce all elements of `curr_diff` down by 1
+                total_k -= ops_needed
+                diff_counts[curr_diff] = 0
+                diff_counts[curr_diff - 1] += count
+            else:
+                # We don't have enough `total_k` to reduce all of them
+                # Reduce as many as we can
+                diff_counts[curr_diff] -= total_k
+                diff_counts[curr_diff - 1] += total_k
+                total_k = 0
+                break
+                
+            curr_diff -= 1
+
+        # Step 3: Calculate the final sum of squared differences
+        ans = 0
+        for diff, count in diff_counts.items():
+            if count > 0:
+                ans += count * (diff ** 2)
+                
+        return ans
