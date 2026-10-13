@@ -1,0 +1,16 @@
+class Solution:
+    def maxAlternatingSum(self, nums: List[int]) -> int:
+        # Square all elements and sort them
+        squares = sorted([x * x for x in nums])
+        n = len(squares)
+        
+        # The first n // 2 elements are the smallest, so we subtract them
+        # The remaining elements are the largest, so we add them
+        res = 0
+        for i in range(n):
+            if i < n // 2:
+                res -= squares[i]
+            else:
+                res += squares[i]
+                
+        return res
