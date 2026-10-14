@@ -1,0 +1,22 @@
+class Solution:
+    def maxSumOfSquares(self, num: int, sum: int) -> str:
+        # Check if it's even possible to form a number of length `num` 
+        # with a digit sum equal to `sum`.
+        if sum < 0 or sum > 9 * num:
+            return ""
+        
+        res = []
+        for i in range(num):
+            # For the current position, we want to pick the largest possible digit 
+            # such that the remaining digits can still form a valid sum.
+            # The remaining `num - 1 - i` positions can take at most 9 each.
+            max_possible = min(9, sum - (num - 1 - i) * 9)
+            
+            # Since we want the maximum number if scores are equal, 
+            # we also ensure the digit is at least 0.
+            digit = max(0, max_possible)
+            
+            res.append(str(digit))
+            sum -= digit
+            
+        return "".join(res)
