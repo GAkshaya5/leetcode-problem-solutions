@@ -1,0 +1,64 @@
+class Solution:
+    def sumCounts(self, nums: List[int]) -> int:
+        MOD = 10**9 + 7
+        n = len(nums)
+        
+        # Segment tree arrays
+        # tree stores the sum of squares of distinct counts
+        # lazy stores the increment for the range
+        tree = [0] * (4 * n)
+        lazy = [0] * (4 * n)
+        sum_val = [0] * (4 * n) # stores the sum of distinct counts for range
+        
+        def push(node, l, r):
+            if lazy[node] != 0:
+                val = lazy[node]
+                mid = (l + r) // 2
+                
+                # For left child
+                left_node = 2 * node
+                tree[left_node] = (tree[left_node] + 2 * val * sum_val[left_node] + val * val * (mid - l + 1)) % MOD
+                sum_val[left_node] = (sum_val[left_node] + val * (mid - l + 1)) % MOD
+                lazy[left_node] = (lazy[left_node] + val) % MOD
+                
+                # For right child
+                right_node = 2 * node + 1
+                tree[right_node] = (tree[right_node] + 2 * val * sum_val[right_node] + val * val * (r - mid)) % MOD
+                sum_val[right_node] = (sum_val[right_node] + val * (r - mid)) % MOD
+                lazy[right_node] = (lazy[right_node] + val) % MOD
+                
+                lazy[node] = 0
+
+        def update(node, l, r, ql, qr, val):
+            if ql > r or qr < l:
+                return
+            if ql <= l and r <= qr:
+                tree[node] = (tree[node] + 2 * val * sum_val[node] + val * val * (r - l + 1)) % MOD
+                sum_val[node] = (sum_val[node] + val * (r - l + 1)) % MOD
+                lazy[node] = (lazy[node] + val) % MOD
+                return
+            
+            push(node, l, r)
+            mid = (l + r) // 2
+            update(2 * node, l, mid, ql, qr, val)
+            update(2 * node + 1, mid + 1, r, ql, qr, val)
+            
+            sum_val[node] = (sum_val[2 * node] + sum_val[2 * node + 1]) % MOD
+            tree[node] = (tree[2 * node] + tree[2 * node + 1]) % MOD
+
+        last_seen = {}
+        total_sum = 0
+        current_sum_squares = 0
+        
+        for j, x in enumerate(nums):
+            prev = last_seen.get(x, -1)
+            last_seen[x] = j
+            
+            # Update range [prev + 1, j] by adding 1 to distinct counts
+            update(1, 0, n - 1, prev + 1, j, 1)
+            
+            # tree[1] now holds the sum of squares of distinct counts for all subarrays ending at j
+            current_sum_squares = tree[1]
+            total_sum = (total_sum + current_sum_squares) % MOD
+            
+        return total_sum
