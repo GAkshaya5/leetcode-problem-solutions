@@ -1,0 +1,40 @@
+class Solution:
+    def minSwaps(self, nums: List[int]) -> int:
+        def get_digit_sum(n):
+            s = 0
+            while n > 0:
+                s += n % 10
+                n //= 10
+            return s
+
+        n = len(nums)
+        # Pair each number with its (digit_sum, value, original_index)
+        indexed_nums = []
+        for i, val in enumerate(nums):
+            indexed_nums.append((get_digit_sum(val), val, i))
+        
+        # Sort based on digit sum, then by value
+        sorted_nums = sorted(indexed_nums, key=lambda x: (x[0], x[1]))
+        
+        # Map each original index to its target sorted index
+        target_indices = [0] * n
+        for target_idx, (_, _, orig_idx) in enumerate(sorted_nums):
+            target_indices[orig_idx] = target_idx
+            
+        # Count cycles in the permutation graph
+        visited = [False] * n
+        swaps = 0
+        
+        for i in range(n):
+            if not visited[i] and target_indices[i] != i:
+                cycle_size = 0
+                curr = i
+                while not visited[curr]:
+                    visited[curr] = True
+                    curr = target_indices[curr]
+                    cycle_size += 1
+                if cycle_size > 1:
+                    swaps += (cycle_size - 1)
+                    
+        
+        return swaps
