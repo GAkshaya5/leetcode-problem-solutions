@@ -1,0 +1,38 @@
+class Solution:
+
+    def sortableIntegers(self, nums: list[int]) -> int:
+        n = len(nums)
+        sorted_nums = sorted(nums)
+        total_sum = 0
+
+        # Helper to check if a block can be rotated to match its sorted counterpart
+        def can_rotate(block, target):
+            # A block is a cyclic rotation if target exists in block + block
+            extended = block + block
+            k = len(target)
+            for i in range(len(block) + 1):
+                if extended[i : i + k] == target:
+                    return True
+            return False
+
+        # Find all divisors of n
+        divisors = []
+        for i in range(1, int(n**0.5) + 1):
+            if n % i == 0:
+                divisors.append(i)
+                if i * i != n:
+                    divisors.append(n // i)
+
+        # Check each divisor k
+        for k in divisors:
+            valid = True
+            for i in range(0, n, k):
+                block = nums[i : i + k]
+                target = sorted_nums[i : i + k]
+                if not can_rotate(block, target):
+                    valid = False
+                    break
+            if valid:
+                total_sum += k
+
+        return total_sum
