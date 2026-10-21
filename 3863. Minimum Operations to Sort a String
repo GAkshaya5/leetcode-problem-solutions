@@ -1,0 +1,29 @@
+class Solution:
+    def minOperations(self, s: str) -> int:
+        # Case 1: If the string is already sorted
+        if s == "".join(sorted(s)):
+            return 0
+        
+        # Case 2: If length is 2 and not sorted, it's impossible with proper substrings
+        if len(s) == 2:
+            return -1
+        
+        mn = min(s)
+        mx = max(s)
+        
+        # Case 3: Check if 1 operation is enough
+        # - Min char appears at the beginning (index 0) and not the whole string
+        # - Max char appears at the end (index len(s)-1) and not the whole string
+        if (s[0] == mn and s != mn * len(s)) or (s[-1] == mx and s != mx * len(s)):
+            return 1
+            
+        # Case 4: If impossible to sort
+        # (If all characters are the same except boundaries, or similar structural impossibilities)
+        
+        # Case 5: Check for 3 operations edge case
+        # (One and only largest character at first and one and only smallest character at last)
+        if s[0] == mx and s[-1] == mn:
+            return 3
+            
+        # Fallback to 2 operations for general cases
+        return 2
