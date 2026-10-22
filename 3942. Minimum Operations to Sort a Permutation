@@ -1,0 +1,49 @@
+#include <stdbool.h>
+
+int minOperations(int* nums, int numsSize) {
+    int n = numsSize;
+    int pos0 = 0;
+
+    // Find position of 0
+    for (int i = 0; i < n; i++) {
+        if (nums[i] == 0) {
+            pos0 = i;
+            break;
+        }
+    }
+
+    bool increasingRotation = true;
+    bool decreasingRotation = true;
+
+    for (int i = 0; i < n; i++) {
+        // Check whether nums is a left-rotated increasing array
+        if (nums[(pos0 + i) % n] != i) {
+            increasingRotation = false;
+        }
+
+        // Check whether nums is a left-rotated decreasing array
+        if (nums[(pos0 - i + n) % n] != i) {
+            decreasingRotation = false;
+        }
+    }
+
+    if (increasingRotation) {
+        int rotateLeft = pos0;
+        int reverseTwiceThenRotate = n - pos0 + 2;
+
+        return rotateLeft < reverseTwiceThenRotate
+             ? rotateLeft
+             : reverseTwiceThenRotate;
+    }
+
+    if (decreasingRotation) {
+        int reverseThenRotate = n - pos0;
+        int rotateThenReverseTwice = pos0 + 2;
+
+        return reverseThenRotate < rotateThenReverseTwice
+             ? reverseThenRotate
+             : rotateThenReverseTwice;
+    }
+
+    return -1;
+}
