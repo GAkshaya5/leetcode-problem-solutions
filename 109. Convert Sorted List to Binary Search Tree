@@ -1,0 +1,48 @@
+# Definition for singly-linked list.
+# class ListNode:
+#     def __init__(self, val=0, next=None):
+#         self.val = val
+#         self.next = next
+
+# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, val=0, left=None, right=None):
+#         self.val = val
+#         self.left = left
+#         self.right = right
+
+class Solution:
+    def sortedListToBST(self, head: ListNode | None) -> TreeNode | None:
+        # Step 1: Find the length of the linked list
+        curr = head
+        n = 0
+        while curr:
+            n += 1
+            curr = curr.next
+            
+        # Keep a pointer to traverse the linked list globally
+        self.head = head
+        
+        # Step 2: Recursive helper function to build BST using inorder traversal
+        def build_bst(start: int, end: int) -> TreeNode | None:
+            if start > end:
+                return None
+            
+            mid = (start + end) // 2
+            
+            # Recursively build the left subtree
+            left_child = build_bst(start, mid - 1)
+            
+            # Allocate the current node with the value from the linked list
+            root = TreeNode(self.head.val)
+            root.left = left_child
+            
+            # Advance the global linked list pointer
+            self.head = self.head.next
+            
+            # Recursively build the right subtree
+            root.right = build_bst(mid + 1, end)
+            
+            return root
+            
+        return build_bst(0, n - 1)
