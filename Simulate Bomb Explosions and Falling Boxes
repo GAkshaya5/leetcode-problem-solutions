@@ -1,0 +1,58 @@
+class Solution {
+    bool gravity(vector<vector<char>>& g) {
+        bool r = false;
+        for (int i = g.size() - 2; i >= 0; --i) {
+            for (int j = 0; j < g[i].size(); ++j) {
+                if (g[i][j] == '#' && g[i + 1][j] == '-') {
+                    swap(g[i][j], g[i + 1][j]);
+                    r = true;
+                }
+            }
+        }
+        return r;
+    }
+
+    bool explosion(const vector<vector<int>> &b, vector<vector<char>>& g) {
+        const int m = g.size(), n = g[0].size();
+        const int dx[] = {-1, 0, 1, 0}, dy[] = {0, 1, 0, -1};
+        vector<vector<int>> v;
+        for (const auto& p : b) {
+            for (int i = 0; i < 4; ++i) {
+                const int x = p[0] + dx[i], y = p[1] + dy[i];
+                if (x >= 0 && x < m && y >= 0 && y < n && g[x][y] == '#') {
+                    v.push_back(p);
+                    break;
+                }
+            }
+        }
+        bool r = false;
+        for (const auto& p : v) {
+            for (int i = -1; i <= 1; ++i) {
+                const int x = p[0] + i;
+                for (int j = -1; j <= 1; ++j) {
+                    const int y = p[1] + j;
+                    if (x >= 0 && x < m && y >= 0 && y < n && g[x][y] == '#') {
+                        g[x][y] = '-';
+                        r = true;
+                    }
+                }
+            }
+        }
+        return r;
+    }
+public:
+    vector<vector<char>> finalGrid(vector<vector<char>>& grid) {
+        const int m = grid.size(), n = grid[0].size();
+        vector<vector<int>> b;
+        for (int i = 0; i < m; ++i) {
+            for (int j = 0; j < n; ++j) {
+                if (grid[i][j] == '*') {
+                    b.push_back({i, j});
+                }
+            }
+        }
+        while (explosion(b, grid) || gravity(grid))
+        ;
+        return grid;
+    }
+};
