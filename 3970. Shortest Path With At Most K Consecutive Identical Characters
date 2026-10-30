@@ -1,0 +1,75 @@
+#include <vector>
+#include <string>
+#include <queue>
+#include <tuple>
+#include <unordered_map>
+#include <algorithm>
+
+using namespace std;
+
+class Solution {
+public:
+    int shortestPath(int n, vector<vector<int>>& edges, string labels, int k) {
+        // Build adjacency list: adj[u] = list of {v, weight}
+        vector<vector<pair<int, int>>> adj(n);
+        for (const auto& edge : edges) {
+            adj[edge[0]].push_back({edge[1], edge[2]});
+        }
+
+        // Min-priority queue storing: {current_weight, node, consecutive_count}
+        priority_queue<tuple<long long, int, int>, vector<tuple<long long, int, int>>, greater<tuple<long long, int, int>>> pq;
+
+        // Distance table to store minimum weight for each (node, count) state
+        // Using a flattened or nested structure. Since n <= 50,000 and k <= 50, 
+        // a vector of unordered_map or a direct 2D structure if memory permits.
+        // vector<unordered_map<int, long long>> dist(n);
+        
+        // To handle constraints efficiently, we can use a hash map for visited states or a 1D vector mapping (node * (k + 1) + count)
+        // Given constraints, let's use a compact visited tracking mechanism:
+        auto state_key = [](int node, int count) {
+            return (long long)node * 55 + count;
+        };
+
+        unordered_map<long long, long long> min_dist;
+
+        // Base case: starting at node 0
+        int start_count = 1;
+        pq.push({0, 0, start_count});
+        min_dist[state_key(0, start_count)] = 0;
+
+        while (!pq.empty()) {
+            auto [w, u, count] = pq.top();
+            pq.pop();
+
+            if (u == n - 1) {
+                return w;
+            }
+
+            if (w > min_dist[state_key(u, count)]) {
+                continue;
+            }
+
+            for (const auto& neighbor : adj[u]) {
+                int v = neighbor.first;
+                int weight = neighbor.second;
+
+                int next_count = 1;
+                if (labels[v] == labels[u]) {
+                    next_count = count + 1;
+                }
+
+                if (next_count <= k) {
+                    long long next_w = w + weight;
+                    long long key = state_key(v, next_count);
+
+                    if (min_dist.find(key) == min_dist.end() || next_w < min_dist[key]) {
+                        min_dist[key] = next_w;
+                        pq.push({next_w, v, next_count});
+                    }
+                }
+            }
+        }
+
+        return -1;
+    }
+};
