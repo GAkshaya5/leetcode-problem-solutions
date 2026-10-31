@@ -1,0 +1,76 @@
+class Solution {
+public:
+    int uniquePaths(vector<vector<int>>& grid) {
+        int m = grid.size();
+        int n = grid[0].size();
+        int MOD = 1e9 + 7;
+
+        // go[i][j][0] -> jump target if moving right into (i, j)
+        // go[i][j][1] -> jump target if moving down into (i, j)
+        // Stored as encoded integer: i * n + j, or -1 if invalid/out of bounds
+        vector<vector<array<int, 2>>> go(m, vector<array<int, 2>>(n, {-1, -1}));
+
+        auto getJump = [&](int r, int c, int dir) -> pair<int, int> {
+            while (r >= 0 && r < m && c >= 0 && c < n && grid[r][c] == 1) {
+                if (dir == 0) {
+                    // Entering mirror while moving right -> turns down
+                    dir = 1;
+                    r += 1;
+                } else {
+                    // Entering mirror while moving down -> turns right
+                    dir = 0;
+                    c += 1;
+                }
+            }
+            if (r < 0 || r >= m || c < 0 || c >= n) {
+                return {-1, -1};
+            }
+            return {r, c};
+        };
+
+        // Precompute jumps for all cells
+        for (int i = 0; i < m; ++i) {
+            for (int j = 0; j < n; ++j) {
+                // If we try to move right to (i, j+1)
+                if (j + 1 < n) {
+                    auto [nr, nc] = getJump(i, j + 1, 0);
+                    if (nr != -1) {
+                        go[i][j][0] = nr * n + nc;
+                    }
+                }
+                // If we try to move down to (i+1, j)
+                if (i + 1 < m) {
+                    auto [nr, nc] = getJump(i + 1, j, 1);
+                    if (nr != -1) {
+                        go[i][j][1] = nr * n + nc;
+                    }
+                }
+            }
+        }
+
+        vector<vector<long long>> dp(m, vector<long long>(n, 0));
+        dp[0][0] = 1;
+
+        for (int i = 0; i < m; ++i) {
+            for (int j = 0; j < n; ++j) {
+                if (dp[i][j] == 0) continue;
+
+                // Try moving right
+                if (go[i][j][0] != -1) {
+                    int nr = go[i][j][0] / n;
+                    int nc = go[i][j][0] % n;
+                    dp[nr][nc] = (dp[nr][nc] + dp[i][j]) % MOD;
+                }
+
+                // Try moving down
+                if (go[i][j][1] != -1) {
+                    int nr = go[i][j][1] / n;
+                    int nc = go[i][j][1] % n;
+                    dp[nr][nc] = (dp[nr][nc] + dp[i][j]) % MOD;
+                }
+            }
+        }
+
+        return dp[m - 1][n - 1];
+    }
+};
