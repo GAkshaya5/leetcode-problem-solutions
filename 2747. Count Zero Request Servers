@@ -1,0 +1,56 @@
+class Solution {
+public:
+    vector<int> countServers(int n, vector<vector<int>>& logs, int x, vector<int>& queries) {
+        int m = queries.size();
+        vector<int> ans(m);
+        
+        // Store queries with their original indices: {query_time, original_index}
+        vector<pair<int, int>> indexedQueries(m);
+        for (int i = 0; i < m; ++i) {
+            indexedQueries[i] = {queries[i], i};
+        }
+        
+        // Sort queries and logs by time
+        sort(indexedQueries.begin(), indexedQueries.end());
+        sort(logs.begin(), logs.end(), [](const vector<int>& a, const vector<int>& b) {
+            return a[1] < b[1];
+        });
+        
+        vector<int> serverCount(n + 1, 0);
+        int activeServers = 0;
+        int i = 0, j = 0;
+        int totalLogs = logs.size();
+        
+        for (auto& q : indexedQueries) {
+            int qTime = q.first;
+            int origIdx = q.second;
+            int startTime = qTime - x;
+            int endTime = qTime;
+            
+            // Add logs that fall within the right boundary (<= endTime)
+            while (j < totalLogs && logs[j][1] <= endTime) {
+                int serverId = logs[j][0];
+                if (serverCount[serverId] == 0) {
+                    activeServers++;
+                }
+                serverCount[serverId]++;
+                j++;
+            }
+            
+            // Remove logs that fall outside the left boundary (< startTime)
+            while (i < totalLogs && logs[i][1] < startTime) {
+                int serverId = logs[i][0];
+                serverCount[serverId]--;
+                if (serverCount[serverId] == 0) {
+                    activeServers--;
+                }
+                i++;
+            }
+            
+            // Total servers minus servers with at least one request
+            ans[origIdx] = n - activeServers;
+        }
+        
+        return ans;
+    }
+};
