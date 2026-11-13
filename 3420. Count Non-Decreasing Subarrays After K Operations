@@ -1,0 +1,28 @@
+class Solution {
+    public long countNonDecreasingSubarrays(int[] nums, int k) {
+        int n = nums.length;
+        long totalCount = 0;
+        long operations = 0;
+        
+        java.util.ArrayDeque<int[]> stack = new java.util.ArrayDeque<>();
+        
+        for (int r = n - 1; r >= 0; r--) {
+            int count = 1;
+            while (!stack.isEmpty() && stack.peek()[0] < nums[r]) {
+                int[] top = stack.pop();
+                operations += (long) (top[0] - nums[r]) * top[1];
+                count += top[1];
+            }
+            stack.push(new int[]{nums[r], count});
+            
+            while (operations > k) {
+                int[] top = stack.peek();
+                if (top[1] > 1) {
+                    operations -= (top[0] - nums[l + top[1] - 1]); // wait, maintain left and right pointers properly
+                }
+            }
+        }
+        
+        return totalCount;
+    }
+}
