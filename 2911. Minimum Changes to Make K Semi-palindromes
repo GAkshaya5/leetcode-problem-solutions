@@ -1,0 +1,82 @@
+class Solution {
+public:
+    int n;
+    string str;
+    int cost[205][205];
+    int memo[205][105];
+
+    // Helper to calculate changes needed for substring s[l..r]
+    int getCost(int l, int r) {
+        int len = r - l + 1;
+        if (len == 1) return 1e9; // Length 1 cannot be a semi-palindrome
+
+        int minChanges = 1e9;
+
+        // Try all proper divisors d of len
+        for (int d = 1; d * d <= len; ++d) {
+            if (len % d == 0) {
+                // Divisor 1: d
+                minChanges = min(minChanges, calcForDivisor(l, r, d));
+                
+                // Divisor 2: len / d (must be strictly less than len)
+                int d2 = len / d;
+                if (d2 < len && d2 != d) {
+                    minChanges = min(minChanges, calcForDivisor(l, r, d2));
+                }
+            }
+        }
+        return minChanges;
+    }
+
+    int calcForDivisor(int l, int r, int d) {
+        int changes = 0;
+        // Iterate over each of the d groups
+        for (int start = 0; start < d; ++start) {
+            int left = l + start;
+            // Find the last index in this group <= r
+            int right = r - ((r - left) % d);
+
+            while (left < right) {
+                if (str[left] != str[right]) {
+                    changes++;
+                }
+                left += d;
+                right -= d;
+            }
+        }
+        return changes;
+    }
+
+    void precompute() {
+        for (int i = 0; i < n; ++i) {
+            for (int j = i; j < n; ++j) {
+                cost[i][j] = getCost(i, j);
+            }
+        }
+    }
+
+    int solve(int idx, int k) {
+        if (k == 0) return (idx == n) ? 0 : 1e9;
+        if (idx >= n) return 1e9;
+        if (memo[idx][k] != -1) return memo[idx][k];
+
+        int ans = 1e9;
+        // Each substring must have length >= 2, so x starts at idx + 1
+        // Also leave at least 2 * (k - 1) characters for the remaining k - 1 substrings
+        for (int x = idx + 1; x <= n - 2 * (k - 1) - 1; ++x) {
+            int current_cost = cost[idx][x] + solve(x + 1, k - 1);
+            ans = min(ans, current_cost);
+        }
+
+        return memo[idx][k] = ans;
+    }
+
+    int minimumChanges(string s, int k) {
+        str = s;
+        n = s.length();
+        memset(memo, -1, sizeof(memo));
+
+        precompute();
+        return solve(0, k);
+    }
+};
