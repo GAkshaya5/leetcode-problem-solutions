@@ -1,0 +1,49 @@
+class Solution {
+public:
+    int maximumSaleItems(vector<vector<int>>& items, int budget) {
+        int n = static_cast<int>(items.size());
+        int maxFactor = 0;
+        long long minPrice = LLONG_MAX;
+
+        for (const auto& item : items) {
+            maxFactor = max(maxFactor, item[0]);
+            minPrice = min(minPrice, static_cast<long long>(item[1]));
+        }
+
+        vector<int> factorCount(maxFactor + 1, 0);
+        for (const auto& item : items) {
+            factorCount[item[0]]++;
+        }
+
+        vector<int> multiplesCount(maxFactor + 1, 0);
+        for (int d = 1; d <= maxFactor; ++d) {
+            if (factorCount[d] == 0) continue;
+            for (int m = d; m <= maxFactor; m += d) {
+                multiplesCount[d] += factorCount[m];
+            }
+        }
+
+        map<long long, long long> boostedByPrice;
+        for (const auto& item : items) {
+            int f = item[0];
+            long long price = item[1];
+            int gain = multiplesCount[f] - 1;
+            if (gain > 0 && price < 2 * minPrice) {
+                boostedByPrice[price] += gain;
+            }
+        }
+
+        long long remBudget = budget;
+        long long totalItems = 0;
+
+        for (const auto& [price, count] : boostedByPrice) {
+            if (remBudget < price) break;
+            long long take = min(count, remBudget / price);
+            totalItems += 2 * take;
+            remBudget -= take * price;
+        }
+
+        totalItems += remBudget / minPrice;
+        return static_cast<int>(totalItems);
+    }
+};
